@@ -6,13 +6,19 @@
         "build": "vite build"
     },
     "devDependencies": {
+        "@vitejs/plugin-vue": "^5.1.4",
         "axios": "^1.7.4",
         "laravel-vite-plugin": "^1.0",
-        "vite": "^5.0"
+        "vite": "^5.4.6"
     },
     "dependencies": {
+        "@mdi/font": "^7.4.47",
         "@popperjs/core": "^2.11.8",
+        "@vuetify/vite-plugin": "^1.0.0-alpha.11",
         "bootstrap": "^5.3.3",
-        "sass": "^1.79.1"
+        "sass": "^1.79.1",
+        "vue": "^3.5.6",
+        "vue-router": "^4.4.5",
+        "vuetify": "^3.7.0-beta.1"
     }
 }
