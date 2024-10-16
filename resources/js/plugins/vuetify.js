@@ -2,11 +2,15 @@ import "vuetify/styles";
 import { createVuetify } from "vuetify";
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
+import * as VStepperVertical from 'vuetify/labs/VStepperVertical';
 
 import "@mdi/font/css/materialdesignicons.css";
 
 const vuetify = createVuetify({
-    components,
+    components: {
+        ...components,
+        ...VStepperVertical
+    },
     directives,
     icons: {
         defaultSet: "mdi",

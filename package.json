@@ -9,14 +9,17 @@
         "@vitejs/plugin-vue": "^5.1.4",
         "axios": "^1.7.4",
         "laravel-vite-plugin": "^1.0",
+        "sass": "^1.79.3",
+        "sass-loader": "^16.0.2",
         "vite": "^5.4.6"
     },
     "dependencies": {
         "@mdi/font": "^7.4.47",
         "@popperjs/core": "^2.11.8",
         "@vuetify/vite-plugin": "^1.0.0-alpha.11",
+        "@vueuse/head": "^2.0.0",
+        "aos": "^2.3.4",
         "bootstrap": "^5.3.3",
-        "sass": "^1.79.1",
         "vue": "^3.5.6",
         "vue-router": "^4.4.5",
         "vuetify": "^3.7.0-beta.1"

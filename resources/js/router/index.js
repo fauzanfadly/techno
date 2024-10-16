@@ -1,8 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
-import App from "@/App.vue";
 import landingPage from "./landing-page";
+import products from "./products";
 
-const routes = [...landingPage];
+const routes = [
+    ...landingPage,
+    ...products,
+    // test
+];
 
 const router = createRouter({
     history: createWebHistory(),

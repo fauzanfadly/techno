@@ -1,6 +1,4 @@
 import Index from "@/pages/landing/Index.vue";
-import About from "@/pages/landing/About.vue";
-import Contact from "@/pages/landing/Contact.vue";
 
 const routes = [
     {
@@ -9,14 +7,19 @@ const routes = [
         component: Index,
     },
     {
+        path: "/products",
+        name: "landing-page-products",
+        component: Index,
+    },
+    {
         path: "/about",
         name: "landing-page-about",
-        component: About,
+        component: Index,
     },
     {
         path: "/contact",
         name: "landing-page-contact",
-        component: Contact,
+        component: Index,
     },
 ];
 

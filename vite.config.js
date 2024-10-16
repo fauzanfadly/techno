@@ -3,12 +3,14 @@ import laravel from "laravel-vite-plugin";
 import vue from "@vitejs/plugin-vue";
 import vuetify from "@vuetify/vite-plugin";
 
-const env = process.env;
-
 export default defineConfig({
     plugins: [
         laravel({
-            input: ["resources/css/app.css", "resources/js/app.js"],
+            input: [
+                "resources/css/app.css",
+                "resources/js/app.js",
+                "resources/scss/variables.scss",
+            ],
             refresh: true,
         }),
         vue({
@@ -20,8 +22,15 @@ export default defineConfig({
             },
         }),
     ],
+    // css: {
+    //     preprocessorOptions: {
+    //         scss: {
+    //             additionalData: `@import "@/../scss/variables.scss";`,
+    //         },
+    //     },
+    // },
     server: {
-        port: env.VITE_PORT ? parseInt(env.VITE_PORT) : 3000,
+        port: 3000,
     },
     resolve: {
         alias: {
