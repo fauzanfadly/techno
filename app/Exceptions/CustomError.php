@@ -15,10 +15,10 @@ class CustomError extends Exception
      */
     public function render(Request $request)
     {
-        $message = $this->getMessage();
+        $message = !empty($this->message) ? $this->message : $this->getMessage();
 
         if ($request->expectsJson()) {
-            return response()->error();
+            return response()->error($message);
         }
 
         return back()->with('error', $message);

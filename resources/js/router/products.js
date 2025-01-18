@@ -1,28 +1,16 @@
-import Assemble from "@/pages/products/Assemble.vue";
-import Painting from "@/pages/products/Painting.vue";
-import Weilding from "@/pages/products/Weilding.vue";
-import EngineeringServices from "@/pages/products/EngineeringServices.vue";
+import Vendor from "@/pages/products/Vendor.vue";
+import ProductCatalog from "@/pages/products/catalog/Index.vue";
 
 const routes = [
     {
-        path: "/products/assemble",
-        name: "products-assemble",
-        component: Assemble,
+        path: "/product/:type",
+        name: "product",
+        component: Vendor,
     },
     {
-        path: "/products/painting",
-        name: "products-painting",
-        component: Painting,
-    },
-    {
-        path: "/products/weilding",
-        name: "products-weilding",
-        component: Weilding,
-    },
-    {
-        path: "/products/engineering-services",
-        name: "products-engineering-services",
-        component: EngineeringServices,
+        path: "/product/catalog/:type/:vendor_id",
+        name: "product-catalog",
+        component: ProductCatalog,
     },
 ];
 

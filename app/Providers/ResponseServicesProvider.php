@@ -3,8 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Http\Response;
-
+use Illuminate\Routing\ResponseFactory;
 
 class ResponseServicesProvider extends ServiceProvider
 {
@@ -23,9 +22,9 @@ class ResponseServicesProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(Response $response)
+    public function boot(ResponseFactory $response)
     {
-        $response->macro('success', function ($data, $message = 'Your request is success', $code = 200) {
+        $response->macro('success', function ($data, $message = 'Your request is successful', $code = 200) {
             return response()->json([
                 'status' => 'SUCCESS',
                 'code' => $code,
@@ -34,11 +33,12 @@ class ResponseServicesProvider extends ServiceProvider
             ], $code);
         });
 
-        $response->macro('error', function ($message = 'Sorry, something went wrong', $code = 400) {
+        $response->macro('error', function ($message = 'Sorry, something went wrong', $detail = null, $code = 400) {
             return response()->json([
                 'status' => 'ERROR',
                 'code' => $code,
                 'message' => $message,
+                ...(!empty($detail) ? ['error' => $detail] : [])
             ], $code);
         });
 
@@ -51,7 +51,7 @@ class ResponseServicesProvider extends ServiceProvider
             ], 400);
         });
 
-        $response->macro('notFound', function ($message = 'Url not found') {
+        $response->macro('notFound', function ($message = 'Request not found') {
             return response()->json([
                 'status' => 'ERROR',
                 'code' => 404,

@@ -82,9 +82,6 @@
 <script setup>
 import LandingPageLayout from "@/layouts/LandingPageLayout.vue";
 import { ref } from "vue";
-import { useDynamicTitle } from "@/plugins/head";
-
-useDynamicTitle("Assemble");
 
 const vendors = ref([
     {

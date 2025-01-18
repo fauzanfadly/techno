@@ -5,7 +5,9 @@ import vuetify from "./plugins/vuetify";
 import router from "./router";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { createHead } from "@vueuse/head";
+import { createHead } from '@unhead/vue'
+import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 
 window.axios = axios;
 
@@ -18,8 +20,12 @@ AOS.init({
 
 const app = createApp(App);
 const head = createHead();
+const pinia = createPinia();
+
+pinia.use(piniaPluginPersistedstate);
 
 app.use(vuetify);
 app.use(router);
 app.use(head);
+app.use(pinia);
 app.mount("#app");

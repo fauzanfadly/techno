@@ -1,6 +1,10 @@
 <template>
     <v-app-bar
-        :class="{ 'transparent-navbar': !isScrolled, scrolled: isScrolled }"
+        :class="{
+            'transparent-navbar': !isScrolled,
+            scrolled: isScrolled,
+            'position-fixed': true,
+        }"
         color="black"
         dark
         app

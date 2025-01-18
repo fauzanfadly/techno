@@ -30,7 +30,8 @@ export default defineConfig({
     //     },
     // },
     server: {
-        port: 3000,
+        host: process.env.VITE_PORT || "localhost",
+        port: parseInt(process.env.VITE_PORT || '3000'),
     },
     resolve: {
         alias: {

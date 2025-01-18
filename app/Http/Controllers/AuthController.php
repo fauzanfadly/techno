@@ -7,15 +7,24 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    private $request;
+
+    public function __construct(Request $request) {
+        $this->request = $request;
+    }
+
+
+    public function register()
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+        $validator = Validator::make($this->request->all(), [
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
@@ -24,35 +33,52 @@ class AuthController extends Controller
         }
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password)
+            'name' => $this->request->name,
+            'email' => $this->request->email,
+            'password' => Hash::make($this->request->password)
         ]);
 
-        $token = Auth::attempt($request->only('email', 'password'));
+        $token = Auth::attempt($this->request->only('email', 'password'));
+        $data = [
+            ...$user,
+            'token' => $token
+        ];
 
-        return response()->json([
-            'message' => 'User successfully registered',
-            'token' => $token,
-        ], 201);
+        return response()->success($data, "User successfully registered", 201);
     }
 
 
-    public function login(Request $request)
+    public function login()
     {
-        $credentials = $request->only('email', 'password');
+        $this->request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
 
-        if (! $token = Auth::attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+        $credentials = $this->request->only('email', 'password');
+
+        try {
+            if (!$token = JWTAuth::attempt($credentials)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+
+            $data = [
+                'id' => Auth::user()->id,
+                'email' => Auth::user()->email,
+                'name' => Auth::user()->name,
+                'token' => $token
+            ];
+            return response()->success($data, "User successfully logged in", 200);
+        } catch (JWTException $e) {
+            $message = $e->getMessage();
+            return response()->json(['error' => "Could not create token, $message"], 500);
         }
-
-        return $this->respondWithToken($token);
     }
 
 
     public function myUser()
     {
-        return response()->json(Auth::user());
+        return response()->success(Auth::user(), "Your user info", 200);
     }
 
 
@@ -60,22 +86,25 @@ class AuthController extends Controller
     {
         Auth::logout();
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return response()->success(null, "Successfully logged out", 200);
     }
 
 
     public function refresh()
     {
-        return $this->respondWithToken(Auth::refresh());
+        return $this->respondWithToken(Auth::refresh(), 'Token refreshed successful');
     }
 
 
-    protected function respondWithToken($token)
+    protected function respondWithToken($token, $message)
     {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => Auth::factory()->getTTL() * 60
-        ]);
+        $jwtTtl = config('jwt.ttl', 0);
+        $data = [
+            'token' => $token,
+            'token_type' => 'Bearer',
+            'expires_in' => !empty($jwtTtl) ? $jwtTtl * 60 : 'UNLIMITED'
+        ];
+
+        return response()->success($data, $message, 200);
     }
 }

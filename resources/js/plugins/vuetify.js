@@ -11,6 +11,24 @@ const vuetify = createVuetify({
         ...components,
         ...VStepperVertical
     },
+    defaults: {
+        VTextField: {
+            density: "compact",
+            variant: "outlined",
+        },
+        VSelect: {
+            density: "compact",
+            variant: "outlined",
+        },
+        VAutocomplete: {
+            density: "compact",
+            variant: "outlined",
+        },
+        VFileInput: {
+            density: "compact",
+            variant: "outlined",
+        }
+    },
     directives,
     icons: {
         defaultSet: "mdi",

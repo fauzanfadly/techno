@@ -101,7 +101,7 @@ return [
     |
     */
 
-    'ttl' => env('JWT_TTL', null),
+    'ttl' => !empty(env('JWT_TTL', null)) ? intval(env('JWT_TTL', 0)) : null,
 
     /*
     |--------------------------------------------------------------------------

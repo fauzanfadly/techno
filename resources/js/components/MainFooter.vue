@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-deep-orange-darken-2 w-full">
+    <div class="bg-deep-orange-darken-2 w-full" id="main-footer">
         <v-container class="py-10">
             <v-row>
                 <v-col xs="12" sm="12" md="3" class="text-white-container">
@@ -28,36 +28,16 @@
                 <v-col xs="12" sm="12" md="3" class="text-white-container">
                     <p class="text-white text-h5 mt-4 mb-5">Products</p>
                     <div class="text-subtitle-2">
-                        <p class="mb-3">
+                        <p
+                            v-for="(type, index) in manufatureTypes"
+                            :key="index"
+                            class="mb-3"
+                        >
                             <v-icon icon="mdi-menu-right"></v-icon>
                             <router-link
                                 class="text-white"
-                                :to="{ name: 'products-assemble' }"
-                                v-text="'Assemble'"
-                            />
-                        </p>
-                        <p class="mb-3">
-                            <v-icon icon="mdi-menu-right"></v-icon>
-                            <router-link
-                                class="text-white"
-                                :to="{ name: 'products-painting' }"
-                                v-text="'Painting'"
-                            />
-                        </p>
-                        <p class="mb-3">
-                            <v-icon icon="mdi-menu-right"></v-icon>
-                            <router-link
-                                class="text-white"
-                                :to="{ name: 'products-weilding' }"
-                                v-text="'Weilding'"
-                            />
-                        </p>
-                        <p class="mb-3">
-                            <v-icon icon="mdi-menu-right"></v-icon>
-                            <router-link
-                                class="text-white"
-                                :to="{ name: 'products-engineering-services' }"
-                                v-text="'Engineering & Services'"
+                                :to="`/product/${type.name}`"
+                                v-text="type.name"
                             />
                         </p>
                     </div>
@@ -111,8 +91,31 @@
     </div>
 </template>
 
+
 <script setup>
+import { onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
+import { Request } from "../utils/request";
+import { getStorageFile } from "../utils/storage";
+
+
+const manufatureTypes = ref([]);
+
+
+onMounted(async () => {
+    await fetchManufactureTypes();
+})
+
+
+const fetchManufactureTypes = async () => {
+    await Request.get({
+        url: "/api/manufacture-type",
+        useLoading: true
+    })
+        .then(({ data }) => {
+            manufatureTypes.value = data.data || [];
+        });
+}
 </script>
 
 <style scoped></style>

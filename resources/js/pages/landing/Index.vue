@@ -75,13 +75,18 @@ import { nextTick, onMounted, ref, watch } from "vue";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useRoute } from "vue-router";
-import { useDynamicTitle } from "@/plugins/head";
+import { useHead } from "@unhead/vue";
 
 const route = useRoute();
 const homeSection = ref(null);
 const productsSection = ref(null);
 const aboutSection = ref(null);
 const contactSection = ref(null);
+const pageTitle = ref('Home');
+
+useHead({
+    title: pageTitle.value,
+})
 
 onMounted(() => {
     AOS.init({
@@ -95,22 +100,26 @@ function scrollToSection(sectionName) {
     setTimeout(() => {
         if (sectionName === "landing-page") {
             homeSection.value.$el.scrollIntoView({ behavior: "smooth" });
-            useDynamicTitle("Home");
+            pageTitle.value = "Home";
         } else if (sectionName === "landing-page-products") {
             productsSection.value.$el.scrollIntoView({
                 behavior: "smooth",
             });
-            useDynamicTitle("Products");
+            pageTitle.value = "Products";
         } else if (sectionName === "landing-page-about") {
             aboutSection.value.$el.scrollIntoView({ behavior: "smooth" });
-            useDynamicTitle("About Us");
+            pageTitle.value = "About Us";
         } else if (sectionName === "landing-page-contact") {
-            useDynamicTitle("Contact");
+            pageTitle.value = "Contact";
             window.scrollTo({
                 top: document.body.scrollHeight,
                 behavior: "smooth",
             });
         }
+
+        useHead({
+            title: pageTitle.value,
+        })
     }, 100);
 }
 
