@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
 import vue from "@vitejs/plugin-vue";
-import vuetify from "@vuetify/vite-plugin";
+
 
 export default defineConfig({
     plugins: [
@@ -22,13 +22,18 @@ export default defineConfig({
             },
         }),
     ],
-    // css: {
-    //     preprocessorOptions: {
-    //         scss: {
-    //             additionalData: `@import "@/../scss/variables.scss";`,
-    //         },
-    //     },
-    // },
+    css: {
+        preprocessorOptions: {
+            scss: {
+                silenceDeprecations: ["legacy-js-api"],
+                api: "modern-compiler" // or "modern"
+            },
+            sass: {
+                silenceDeprecations: ["legacy-js-api"],
+                api: "modern-compiler" // or "modern"
+            },
+        },
+    },
     server: {
         host: process.env.VITE_PORT || "localhost",
         port: parseInt(process.env.VITE_PORT || '3000'),

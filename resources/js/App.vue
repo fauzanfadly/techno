@@ -5,13 +5,14 @@
 </template>
 
 <script setup>
+import { useHead } from "@unhead/vue";
 import { RouterView } from "vue-router";
+
+const appName = "Techno";
+
+useHead({
+    titleTemplate: (subTitle) => {
+        return subTitle ? `${subTitle} - ${appName}` : appName;
+    }
+});
 </script>
-
-<style lang="scss">
-$body-font-family: "Poppins", sans-serif !important;
-$heading-font-family: "Poppins", sans-serif !important;
-$font-family: "Poppins", sans-serif !important;
-
-@import url("../css/app.css");
-</style>

@@ -1,6 +1,6 @@
 <template>
     <v-app>
-        <slot></slot>
+        <slot />
         <MessageDialog />
         <LoadingDialog />
         <SnackBar />
@@ -21,7 +21,3 @@ useHead({
     }
 })
 </script>
-
-
-<style>
-</style>

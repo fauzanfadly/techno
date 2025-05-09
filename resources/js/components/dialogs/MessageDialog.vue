@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="components-dialogs-messagedialog">
     <v-dialog
       v-model="_dialog"
       max-width="400"
@@ -87,13 +87,3 @@ const customAction = (action) => {
 
 const getIconColor = () => _iconColor.value || 'primary';
 </script>
-
-<style scoped>
-  .message-dialog .card-border {
-    border: 1px solid var(--v-primary-base);
-  }
-
-  .message-dialog p {
-    margin: 0;
-  }
-</style>

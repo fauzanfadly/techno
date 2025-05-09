@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="components-dialogs-selectfileimagetdialog">
         <v-dialog
             v-model="_dialogProps.show"
             max-width="600"
@@ -60,14 +60,3 @@ const selectImage = (value) => {
     emit('click:image', value);
 }
 </script>
-
-
-<style scoped>
-.dialog-wrapper .card-border {
-    border: 1px solid var(--v-primary-base);
-}
-
-.dialog-wrapper p {
-    margin: 0;
-}
-</style>

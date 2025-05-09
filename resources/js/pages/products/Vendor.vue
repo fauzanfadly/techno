@@ -1,5 +1,5 @@
 <template>
-    <landing-page-layout>
+    <landing-page-layout id="pages-products-vendor">
         <EngineeringServices v-if="paramType === 'Engineering & Services'" />
         <div v-else>
             <v-container fluid class="pa-0">
@@ -228,40 +228,3 @@ watch(
     { immediate: true }
 );
 </script>
-
-<style scoped>
-.background-image {
-    position: relative;
-    background-image: url("https://www.mytorqtools.com/images/d1-img1.jpg");
-    background-size: cover;
-    background-position: center;
-}
-
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    /* Dark overlay with 50% opacity */
-    z-index: 1;
-}
-
-.text-white-container {
-    position: relative;
-    z-index: 2;
-}
-
-.card-category {
-    min-width: 200px;
-    max-width: 200px;
-}
-
-.card-category-see-more {
-    min-width: 110px;
-    max-width: 110px;
-    min-height: 170px;
-    max-height: 170px;
-}
-</style>

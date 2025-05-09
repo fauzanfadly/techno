@@ -1,5 +1,5 @@
 <template>
-    <landing-page-layout>
+    <landing-page-layout id="pages-products-catalog-index">
         <v-container class="py-15 pb-15">
             <v-row class="mt-5">
                 <v-col cols="auto" class="pa-0">
@@ -215,14 +215,14 @@ const selectVendor = ref(null);
 
 useHead({
     title: 'Catalog'
-})
+});
 
 const paramCategoryId = computed(() => {
     const category = router.currentRoute.value.query.category;
     return category
         ? (!isNaN(parseInt(category)) ? parseInt(category) : null)
         : null;
-})
+});
 const getProductSeries = computed(() => {
     let tempCategory = [...productCategory.value];
     let tempSeries = [];
@@ -311,31 +311,3 @@ watch(
     { immediate: true }
 );
 </script>
-
-
-<style scoped>
-.card-product {
-    height: 215px;
-    overflow: hidden;
-}
-
-.card-product-name {
-    display: -webkit-box !important;
-    -webkit-box-orient: vertical !important;
-    line-clamp: 3 !important;
-    -webkit-line-clamp: 3 !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    font-weight: 500;
-    font-size: 14px;
-}
-
-.no-pdf-tag {
-    position: absolute;
-    top: 0;
-    font-size: 11px;
-    user-select: none;
-    border-radius: 0;
-    border-bottom-right-radius: 10px;
-}
-</style>

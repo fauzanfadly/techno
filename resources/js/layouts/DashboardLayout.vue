@@ -30,7 +30,7 @@
 
         <!-- Main Content -->
         <v-main class="bg-grey-lighten-3">
-            <slot></slot>
+            <slot />
         </v-main>
     </default-layout>
 </template>

@@ -8,6 +8,7 @@
         color="black"
         dark
         app
+        id="components-topnavbar"
     >
         <!-- Untuk mobile size kebawah -->
         <v-app-bar-nav-icon v-if="isMobile" @click="mobileMenu = !mobileMenu">
@@ -39,7 +40,7 @@
         <v-spacer v-if="!isMobile"></v-spacer>
 
         <!-- Jika mobile, menu dropdown akan muncul -->
-        <v-overlay v-if="mobileMenu" @click="mobileMenu = false">
+        <v-overlay v-model="mobileMenu" @click="mobileMenu = false">
             <v-card class="menu-card" @click.stop>
                 <v-list>
                     <v-list-item
@@ -55,23 +56,19 @@
     </v-app-bar>
 </template>
 
+
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { RouterLink } from "vue-router";
 
-// ---- Begin::Navbar Functionality ----
-// States for controlling mobile menu visibility, screen size check, and scroll position
 const mobileMenu = ref(false);
 const isMobile = ref(false);
 const isScrolled = ref(false);
 
-// Function to check the window size
 function handleResize() {
-    // Jika ukuran layar di bawah 960px dianggap mobile
     isMobile.value = window.innerWidth < 960;
 }
 
-// Function to check scroll position
 function handleScroll() {
     isScrolled.value = window.scrollY > 0;
 }
@@ -87,7 +84,6 @@ function stopEventListener() {
     window.removeEventListener("resize", handleResize);
     window.removeEventListener("scroll", handleScroll);
 }
-// ---- End::Navbar Functionality ----
 
 const navbarMenus = ref([
     {
@@ -113,7 +109,6 @@ const navbarMenus = ref([
 ]);
 
 onMounted(() => {
-    // Attach event listeners saat komponen dipasang dan lepas ketika komponen dilepas
     startEventListener();
 });
 
@@ -121,29 +116,3 @@ onUnmounted(() => {
     stopEventListener();
 });
 </script>
-
-<style scoped>
-.v-app-bar {
-    transition: background-color 0.2s ease;
-}
-
-.transparent-navbar {
-    background-color: rgba(0, 0, 0, 0.5) !important;
-    /* Background warna transparan pada posisi awal */
-}
-
-.scrolled {
-    background-color: rgba(0, 0, 0, 1) !important;
-    /* Background warna hitam transparan saat discroll */
-}
-
-.menu-card {
-    width: 100%;
-    max-width: 250px;
-    position: fixed;
-    top: 56px;
-    /* Sesuaikan dengan tinggi navbar */
-    left: 50%;
-    transform: translateX(-50%);
-}
-</style>

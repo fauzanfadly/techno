@@ -117,5 +117,3 @@ const fetchManufactureTypes = async () => {
         });
 }
 </script>
-
-<style scoped></style>

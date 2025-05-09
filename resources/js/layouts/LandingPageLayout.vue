@@ -2,7 +2,7 @@
     <DefaultLayout>
         <TopNavBar v-if="useNavbar" />
         <v-main :style="{ marginTop: useNavbar ? '-55px' : '' }">
-            <slot></slot>
+            <slot />
         </v-main>
 
         <MainFooter></MainFooter>
@@ -22,5 +22,3 @@ defineProps({
     }
 })
 </script>
-
-<style lang="css" scoped></style>

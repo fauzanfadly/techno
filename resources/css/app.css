@@ -324,3 +324,202 @@ html, p {
 .bg-blur-15 {
     backdrop-filter: blur(1.5px) !important;
 }
+
+/* Landing Page Styles */
+#pages-landing-index .background-image {
+    position: relative;
+    background-image: url("https://techno-triireka.co.id/wordpress_app/images/slider_1_1920_1200.jpg");
+    background-size: cover;
+    background-position: center;
+}
+
+#pages-landing-index .background-image-about {
+    position: relative;
+    background-image: url("https://techno-triireka.co.id/wordpress_app/images/footer_1600x800.jpg");
+    background-size: cover;
+    background-position: center;
+}
+
+#pages-landing-index .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    /* Dark overlay with 50% opacity */
+    z-index: 1;
+}
+
+#pages-landing-index .text-white-container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Products Vendor Styles */
+#pages-products-vendor .background-image {
+    position: relative;
+    background-image: url("https://techno-triireka.co.id/storage/upload/images/1734782985_d1-img1.jpg");
+    background-size: cover;
+    background-position: center;
+}
+
+#pages-products-vendor .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    /* Dark overlay with 50% opacity */
+    z-index: 1;
+}
+
+#pages-products-vendor .text-white-container {
+    position: relative;
+    z-index: 2;
+}
+
+#pages-products-vendor .card-category {
+    min-width: 200px;
+    max-width: 200px;
+}
+
+#pages-products-vendor .card-category-see-more {
+    min-width: 110px;
+    max-width: 110px;
+    min-height: 170px;
+    max-height: 170px;
+}
+
+/* TopNavBar Styles */
+#components-topnavbar .v-app-bar {
+    transition: background-color 0.2s ease;
+}
+
+#components-topnavbar .transparent-navbar {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+#components-topnavbar .scrolled {
+    background-color: rgba(0, 0, 0, 1) !important;
+}
+
+#components-topnavbar .menu-card {
+    width: 100%;
+    max-width: 250px;
+    position: fixed;
+    top: 56px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* MessageDialog Styles */
+#components-dialogs-messagedialog .message-dialog .card-border {
+  border: 1px solid var(--v-primary-base);
+}
+
+#components-dialogs-messagedialog .message-dialog p {
+  margin: 0;
+}
+
+/* SelectFileImageDialog Styles */
+#components-dialogs-selectfileimagetdialog .dialog-wrapper .card-border {
+  border: 1px solid var(--v-primary-base);
+}
+
+#components-dialogs-selectfileimagetdialog .dialog-wrapper p {
+  margin: 0;
+}
+
+/* EngineeringServices Styles */
+#components-landingpage-engineeringservices .background-image {
+    position: relative;
+    background-image: url("https://www.thestreet.com/.image/ar_16:9%2Cc_fill%2Ccs_srgb%2Cg_faces:center%2Cq_auto:good%2Cw_768/MTY3NTM5MzU5MDg3MjczODcw/business-structure-which-type-is-best-for-your-business.png");
+    background-size: cover;
+    background-position: center;
+}
+
+#components-landingpage-engineeringservices .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    /* Dark overlay with 50% opacity */
+    z-index: 1;
+}
+
+#components-landingpage-engineeringservices .text-white-container {
+    position: relative;
+    z-index: 2;
+}
+
+#components-landingpage-engineeringservices .portfolio-card {
+    height: 596px;
+}
+
+#components-landingpage-engineeringservices .portfolio-list {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 540px;
+}
+
+#components-landingpage-engineeringservices .portfolio-item {
+    position: relative;
+    padding-left: 30px;
+}
+
+#components-landingpage-engineeringservices .portfolio-item::before {
+    content: "";
+    position: absolute;
+    left: 26px;
+    top: 27px;
+    bottom: 0;
+    width: 2px;
+    border-radius: 10px;
+    background-color: rgb(128, 128, 128);
+    margin-bottom: 3px;
+}
+
+#components-landingpage-engineeringservices .portfolio-item:last-child::before {
+    display: none;
+}
+
+/* Non-scoped styles from EngineeringServices.vue */
+.portfolio-item .v-list-item__prepend,
+.portfolio-item .v-list-item__content {
+    align-self: flex-start;
+}
+
+#main-footer {
+    margin-top: -15px;
+}
+
+/* Products Catalog Index Styles */
+#pages-products-catalog-index .card-product {
+    height: 215px;
+    overflow: hidden;
+}
+
+#pages-products-catalog-index .card-product-name {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    line-clamp: 3 !important;
+    -webkit-line-clamp: 3 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+#pages-products-catalog-index .no-pdf-tag {
+    position: absolute;
+    top: 0;
+    font-size: 11px;
+    user-select: none;
+    border-radius: 0;
+    border-bottom-right-radius: 10px;
+}

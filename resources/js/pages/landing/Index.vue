@@ -1,5 +1,5 @@
 <template>
-    <landing-page-layout>
+    <landing-page-layout id="pages-landing-index">
         <v-container ref="homeSection" fluid class="pa-0">
             <v-sheet height="100vh" class="background-image">
                 <div class="overlay"></div>
@@ -68,16 +68,17 @@
     </landing-page-layout>
 </template>
 
+
 <script setup>
 import LandingPageLayout from "@/layouts/LandingPageLayout.vue";
 import Products from "@/components/LandingPage/Products.vue";
-import { nextTick, onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useHead } from "@unhead/vue";
 
-const route = useRoute();
+const router = useRouter();
 const homeSection = ref(null);
 const productsSection = ref(null);
 const aboutSection = ref(null);
@@ -86,17 +87,17 @@ const pageTitle = ref('Home');
 
 useHead({
     title: pageTitle.value,
-})
+});
 
 onMounted(() => {
     AOS.init({
         duration: 800,
         once: true,
     });
-    scrollToSection(route.name);
+    scrollToSection(router.currentRoute.value.name);
 });
 
-function scrollToSection(sectionName) {
+const scrollToSection = (sectionName) => {
     setTimeout(() => {
         if (sectionName === "landing-page") {
             homeSection.value.$el.scrollIntoView({ behavior: "smooth" });
@@ -124,41 +125,10 @@ function scrollToSection(sectionName) {
 }
 
 watch(
-    () => route.name,
-    (newV, oldV) => {
-        scrollToSection(newV);
-    }
+    () => router.currentRoute.value.name,
+    (to, from) => {
+        scrollToSection(to);
+    },
+    { immediate: true }
 );
 </script>
-
-<style scoped>
-.background-image {
-    position: relative;
-    background-image: url("https://techno-triireka.co.id/images/slider_1_1920_1200.jpg");
-    background-size: cover;
-    background-position: center;
-}
-
-.background-image-about {
-    position: relative;
-    background-image: url("https://techno-triireka.co.id/images/footer_1600x800.jpg");
-    background-size: cover;
-    background-position: center;
-}
-
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    /* Dark overlay with 50% opacity */
-    z-index: 1;
-}
-
-.text-white-container {
-    position: relative;
-    z-index: 2;
-}
-</style>
