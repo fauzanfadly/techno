@@ -36,5 +36,16 @@ router.beforeEach((to, from, next) => {
     return next();
 });
 
+ 
+const _scrollTopPaths = ['/', '/product', '/engineering-services', '/about', '/contact'];
+
+router.afterEach((to) => {
+    if (_scrollTopPaths.includes(to.path)) {
+        // scroll to top smoothly when navigating to specific pages
+        if (typeof window !== 'undefined' && window.scrollTo) {
+            window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+        }
+    }
+});
 
 export default router;

@@ -1,6 +1,6 @@
 <template>
     <landing-page-layout id="pages-landing-index">
-        <v-container ref="homeSection" fluid class="pa-0">
+        <v-container fluid class="pa-0">
             <v-sheet height="100vh" class="background-image">
                 <div class="overlay"></div>
                 <v-row class="fill-height" align="center" justify="center">
@@ -32,9 +32,11 @@
             </v-sheet>
         </v-container>
 
-        <products ref="productsSection" data-aos="fade-up"></products>
+        <products data-aos="fade-up" height="100vh"></products>
 
-        <v-container ref="aboutSection" fluid class="pa-0">
+        <partners-section data-aos="fade-up" height="100vh"></partners-section>
+
+        <v-container fluid class="pa-0">
             <v-sheet height="100vh" class="background-image-about">
                 <div class="overlay"></div>
                 <v-row class="fill-height" align="center" justify="center">
@@ -61,6 +63,19 @@
                             machining, fabrication, design for a special
                             machineries on automotive company.
                         </p>
+                        <v-row class="mt-10">
+                            <v-col cols="12" class="text-center">
+                                <v-btn
+                                    color="white"
+                                    dark
+                                    rounded
+                                    class="px-8 elevation-3"
+                                    @click="() => $router.push({ name: 'landing-page-about' })"
+                                >
+                                    Learn More
+                                </v-btn>
+                            </v-col>
+                        </v-row>
                     </v-col>
                 </v-row>
             </v-sheet>
@@ -72,21 +87,14 @@
 <script setup>
 import LandingPageLayout from "@/layouts/LandingPageLayout.vue";
 import Products from "@/components/LandingPage/Products.vue";
-import { onMounted, ref, watch } from "vue";
+import PartnersSection from "@/components/LandingPage/PartnersSection.vue";
+import { onMounted } from "vue";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { useRoute, useRouter } from "vue-router";
 import { useHead } from "@unhead/vue";
 
-const router = useRouter();
-const homeSection = ref(null);
-const productsSection = ref(null);
-const aboutSection = ref(null);
-const contactSection = ref(null);
-const pageTitle = ref('Home');
-
 useHead({
-    title: pageTitle.value,
+    title: 'Home',
 });
 
 onMounted(() => {
@@ -94,41 +102,5 @@ onMounted(() => {
         duration: 800,
         once: true,
     });
-    scrollToSection(router.currentRoute.value.name);
 });
-
-const scrollToSection = (sectionName) => {
-    setTimeout(() => {
-        if (sectionName === "landing-page") {
-            homeSection.value.$el.scrollIntoView({ behavior: "smooth" });
-            pageTitle.value = "Home";
-        } else if (sectionName === "landing-page-products") {
-            productsSection.value.$el.scrollIntoView({
-                behavior: "smooth",
-            });
-            pageTitle.value = "Products";
-        } else if (sectionName === "landing-page-about") {
-            aboutSection.value.$el.scrollIntoView({ behavior: "smooth" });
-            pageTitle.value = "About Us";
-        } else if (sectionName === "landing-page-contact") {
-            pageTitle.value = "Contact";
-            window.scrollTo({
-                top: document.body.scrollHeight,
-                behavior: "smooth",
-            });
-        }
-
-        useHead({
-            title: pageTitle.value,
-        })
-    }, 100);
-}
-
-watch(
-    () => router.currentRoute.value.name,
-    (to, from) => {
-        scrollToSection(to);
-    },
-    { immediate: true }
-);
 </script>

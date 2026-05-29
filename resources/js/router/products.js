@@ -3,14 +3,19 @@ import ProductCatalog from "@/pages/products/catalog/Index.vue";
 
 const routes = [
     {
-        path: "/product/:type",
-        name: "product",
-        component: Vendor,
-    },
-    {
         path: "/product/catalog/:type/:vendor_id",
         name: "product-catalog",
         component: ProductCatalog,
+    },
+    {
+        path: "/product/:type",
+        name: "product-type",
+        component: Vendor,
+    },
+    {
+        path: "/product",
+        name: "product-list",
+        component: Vendor,
     },
 ];
 

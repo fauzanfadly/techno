@@ -328,14 +328,14 @@ html, p {
 /* Landing Page Styles */
 #pages-landing-index .background-image {
     position: relative;
-    background-image: url("https://techno-triireka.co.id/wordpress_app/images/slider_1_1920_1200.jpg");
+    background-image: url("../../public/images/slider_1_1920_1200.jpg");
     background-size: cover;
     background-position: center;
 }
 
 #pages-landing-index .background-image-about {
     position: relative;
-    background-image: url("https://techno-triireka.co.id/wordpress_app/images/footer_1600x800.jpg");
+    background-image: url("../../public/images/footer_1600x800.jpg");
     background-size: cover;
     background-position: center;
 }
@@ -475,7 +475,7 @@ html, p {
 #components-landingpage-engineeringservices .portfolio-item::before {
     content: "";
     position: absolute;
-    left: 26px;
+    left: 40px;
     top: 27px;
     bottom: 0;
     width: 2px;

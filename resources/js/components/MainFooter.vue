@@ -37,8 +37,9 @@
                             <router-link
                                 class="text-white"
                                 :to="`/product/${type.name}`"
-                                v-text="type.name"
-                            />
+                            >
+                                {{ type.name }}
+                            </router-link>
                         </p>
                     </div>
                 </v-col>
@@ -50,32 +51,45 @@
                             <router-link
                                 class="text-white"
                                 :to="{ name: 'landing-page' }"
-                                v-text="'Home'"
-                            />
+                            >
+                                Home
+                            </router-link>
                         </p>
                         <p class="mb-3">
                             <v-icon icon="mdi-menu-right"></v-icon>
                             <router-link
                                 class="text-white"
-                                :to="{ name: 'landing-page-products' }"
-                                v-text="'Products'"
-                            />
+                                :to="{ name: 'product-list' }"
+                            >
+                                Products
+                            </router-link>
+                        </p>
+                        <p class="mb-3">
+                            <v-icon icon="mdi-menu-right"></v-icon>
+                            <router-link
+                                class="text-white"
+                                :to="{ name: 'landing-page-engineering-services' }"
+                            >
+                                Engineering Services
+                            </router-link>
                         </p>
                         <p class="mb-3">
                             <v-icon icon="mdi-menu-right"></v-icon>
                             <router-link
                                 class="text-white"
                                 :to="{ name: 'landing-page-about' }"
-                                v-text="'About Us'"
-                            />
+                            >
+                                About Us
+                            </router-link>
                         </p>
                         <p class="mb-3">
                             <v-icon icon="mdi-menu-right"></v-icon>
                             <router-link
                                 class="text-white"
-                                :to="{ name: 'landing-page-about' }"
-                                v-text="'Contact'"
-                            />
+                                :to="{ name: 'landing-page-contact' }"
+                            >
+                                Contact
+                            </router-link>
                         </p>
                     </div>
                 </v-col>

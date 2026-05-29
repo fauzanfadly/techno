@@ -64,7 +64,7 @@
                             variant="elevated"
                             class="mb-2 elevation-4"
                         >
-                            <v-list-item-title v-text="category.name" />
+                            <v-list-item-title>{{ category.name }}</v-list-item-title>
                         </v-list-item>
                     </v-list>
                 </v-col>

@@ -26,16 +26,17 @@
         <v-spacer v-if="!isMobile"></v-spacer>
 
         <!-- Menu horizontal di tengah untuk tablet ke atas -->
-        <v-btn
-            v-if="!isMobile"
-            v-for="(menu, index) in navbarMenus"
-            :key="index"
-            text
-            class="hover"
-            @click="() => $router.push({ name: menu.pathName })"
-        >
-            {{ menu.title }}
-        </v-btn>
+        <div v-if="!isMobile">
+            <v-btn
+                v-for="(menu, index) in navbarMenus"
+                :key="index"
+                text
+                class="hover"
+                @click="() => $router.push({ name: menu.pathName })"
+            >
+                {{ menu.title }}
+            </v-btn>
+        </div>
 
         <v-spacer v-if="!isMobile"></v-spacer>
 
@@ -93,8 +94,13 @@ const navbarMenus = ref([
     },
     {
         title: "Products",
-        path: "/products",
-        pathName: "landing-page-products",
+        path: "/product",
+        pathName: "product-list",
+    },
+    {
+        title: "Engineering & Services",
+        path: "/engineering-services",
+        pathName: "landing-page-engineering-services",
     },
     {
         title: "About Us",

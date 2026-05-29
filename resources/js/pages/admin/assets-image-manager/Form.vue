@@ -82,16 +82,18 @@
                                             <v-btn
                                                 type="submit"
                                                 color="primary"
-                                                v-text="'Submit'"
-                                            />
+                                            >
+                                                Submit
+                                            </v-btn>
                                         </v-col>
                                         <v-col v-if="paramId !== null" cols="auto">
                                             <v-btn
                                                 :color="!items ? 'grey' : 'red'"
-                                                v-text="'Delete'"
                                                 :disabled="!items"
                                                 @click="confirmDeleteItem(paramId)"
-                                            />
+                                            >
+                                                Delete
+                                            </v-btn>
                                         </v-col>
                                     </v-row>
                                     <v-divider v-if="paramId !== null" class="mt-5"></v-divider>

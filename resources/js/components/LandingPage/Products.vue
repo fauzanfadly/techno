@@ -1,9 +1,9 @@
 <template>
     <v-container
-        :style="{
-            'padding-top': '30vh',
-            'padding-bottom': '30vh',
-        }"
+        :style="height
+            ? { minHeight: height, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingTop: '60px', paddingBottom: '60px' }
+            : { paddingTop: '30vh', paddingBottom: '30vh' }
+        "
     >
         <v-row align="center" justify="center">
             <v-col>
@@ -38,8 +38,9 @@
                                 size="small"
                                 rounded
                                 color="orange"
-                                v-text="'See More'"
-                            />
+                            >
+                                See More
+                            </v-btn>
                         </v-overlay>
                     </v-img>
                 </v-hover>
@@ -58,6 +59,13 @@ import { Request } from "../../utils/request";
 import { getStorageFile } from "../../utils/storage";
 
 
+
+const props = defineProps({
+    height: {
+        type: String,
+        default: null,
+    },
+});
 
 const manufatureTypes = ref([]);
 // const categories = ref([

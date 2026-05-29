@@ -1,4 +1,8 @@
 import Index from "@/pages/landing/Index.vue";
+import EngineeringServices from "@/pages/landing/EngineeringServices.vue";
+import About from "@/pages/landing/About.vue";
+import Contact from "@/pages/landing/Contact.vue";
+
 
 const routes = [
     {
@@ -14,12 +18,17 @@ const routes = [
     {
         path: "/about",
         name: "landing-page-about",
-        component: Index,
+        component: About,
     },
     {
         path: "/contact",
         name: "landing-page-contact",
-        component: Index,
+        component: Contact,
+    },
+    {
+        path: "/engineering-services",
+        name: "landing-page-engineering-services",
+        component: EngineeringServices,
     },
 ];
 
