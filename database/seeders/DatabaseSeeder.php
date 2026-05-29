@@ -2,10 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,8 +11,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
-            UserSeeder::class
-        ]);
+        $this->call(CacheTableSeeder::class);
+        $this->call(CacheLocksTableSeeder::class);
+        $this->call(FailedJobsTableSeeder::class);
+        $this->call(JobBatchesTableSeeder::class);
+        $this->call(JobsTableSeeder::class);
+        $this->call(MigrationsTableSeeder::class);
+        $this->call(MtFilesStorageTableSeeder::class);
+        $this->call(MtImagesStorageTableSeeder::class);
+        $this->call(MtManufactureTypeTableSeeder::class);
+        $this->call(MtProductTableSeeder::class);
+        $this->call(MtProductCategoryTableSeeder::class);
+        $this->call(MtProductSeriesTableSeeder::class);
+        $this->call(MtVendorTableSeeder::class);
+        $this->call(PasswordResetTokensTableSeeder::class);
+        $this->call(SessionsTableSeeder::class);
+        $this->call(UsersTableSeeder::class);
     }
 }
