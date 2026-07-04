@@ -8,7 +8,7 @@
 import { useHead } from "@unhead/vue";
 import { RouterView } from "vue-router";
 
-const appName = "Techno";
+const appName = "PT. Techno Triireka";
 
 useHead({
     titleTemplate: (subTitle) => {

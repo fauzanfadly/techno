@@ -1,227 +1,199 @@
 <template>
     <landing-page-layout id="pages-products-vendor">
-        <div>
+        <!-- Hero Section -->
+        <section class="hero-section">
             <v-container fluid class="pa-0">
                 <v-sheet
-                    height="45vh"
-                    class="background-image"
-                    :style="{ backgroundImage: manufactureType.image ? `url(${getStorageFile(manufactureType.image.image_path)})` : 'none' }"
+                    min-height="50vh"
+                    class="background-image blueprint-grid position-relative"
                 >
                     <div class="overlay"></div>
-                    <v-row
-                        class="fill-height pt-15"
-                        align="center"
-                        justify="center"
-                    >
-                        <v-col cols="12" md="8" class="text-white-container">
-                            <p class="text-white mb-2 text-h5">Product</p>
-                            <p style="font-size: 2.5em" class="text-white text-h3 mb-3">
+                    <v-row class="fill-height" align="center" justify="center">
+                        <v-col cols="12" md="10" lg="8" class="text-white-container text-center px-4">
+                            <span class="eyebrow">Katalog Produk</span>
+                            <h1 class="hero-title">
                                 {{ paramType === 'all' ? 'Our Products' : manufactureType.name }}
-                            </p>
-                            <p class="text-white">
-                                {{ manufactureType.description || "Discover our wide range of high-quality products from trusted manufacturers. Browse through various categories and find the perfect solution for your needs." }}
+                            </h1>
+                            <p class="hero-subtitle">
+                                {{ manufactureType.description || "Jelajahi berbagai produk berkualitas tinggi dari distributor terpercaya. Temukan solusi sempurna untuk kebutuhan manufacturing Anda." }}
                             </p>
                         </v-col>
                     </v-row>
                 </v-sheet>
             </v-container>
+        </section>
 
-            <!-- Toggle Manufacture Types (selalu tampil) -->
-            <v-container class="py-5">
-                <v-row>
-                    <v-col>
-                        <p class="text-h5">Product Categories</p>
-                        <p class="text-grey">
-                            Select a product category to explore
-                        </p>
-                    </v-col>
-                </v-row>
-                <v-row>
-                    <v-col>
-                        <v-chip-group
-                            mandatory
-                            selected-class="deep-orange white--text"
-                            v-model="paramType"
+        <!-- Product Categories Section -->
+        <section class="categories-section py-10">
+            <v-container>
+                <!-- Section Header -->
+                <div class="section-header mb-8" data-aos="fade-up">
+                    <span class="eyebrow-dark">Kategori Produk</span>
+                    <h2 class="section-title text-left mb-2">Pilih Kategori</h2>
+                    <div class="heading-accent"></div>
+                </div>
+
+                <!-- Categories Chips -->
+                <div class="categories-chips" data-aos="fade-up" data-aos-delay="100">
+                    <v-chip-group
+                        v-model="paramType"
+                        selected-class="chip-active"
+                    >
+                        <v-chip
+                            value="all"
+                            @click="$router.push('/product')"
+                            class="category-chip"
+                            :class="{ 'chip-active': paramType === 'all' }"
+                            filter
+                            variant="outlined"
                         >
-                            <v-chip
-                                value="all"
-                                :active="paramType === 'all'"
-                                @click="$router.push('/product')"
-                                class="ma-1"
-                                filter
-                                variant="elevated"
-                                :color="paramType === 'all' ? 'deep-orange' : ''"
-                                :class="paramType === 'all' ? 'white--text' : ''"
-                            >
-                                All Products
-                            </v-chip>
-                            <v-chip
-                                v-for="(type, index) in manufactureTypes"
-                                :key="index"
-                                :value="type.name"
-                                :active="paramType === type.name"
-                                @click="$router.push(`/product/${type.name}`)"
-                                class="ma-1"
-                                filter
-                                variant="elevated"
-                                :color="paramType === type.name ? 'deep-orange' : undefined"
-                                :class="paramType === type.name ? 'white--text' : ''"
-                            >
-                                {{ type.name }}
-                            </v-chip>
-                        </v-chip-group>
-                    </v-col>
-                </v-row>
+                            <v-icon start size="18">mdi-view-grid</v-icon>
+                            All Products
+                        </v-chip>
+                        <v-chip
+                            v-for="(type, index) in manufactureTypes"
+                            :key="index"
+                            :value="type.name"
+                            @click="$router.push(`/product/${type.name}`)"
+                            class="category-chip"
+                            :class="{ 'chip-active': paramType === type.name }"
+                            filter
+                            variant="outlined"
+                        >
+                            <v-icon start size="18">{{ getTypeIcon(type.name) }}</v-icon>
+                            {{ type.name }}
+                        </v-chip>
+                    </v-chip-group>
+                </div>
             </v-container>
+        </section>
 
-            <v-divider></v-divider>
+        <v-divider></v-divider>
 
-            <!-- Vendor list (tampil jika ada paramType atau all products) -->
-            <v-container class="py-5 mb-15">
-                <v-row>
-                    <v-col>
-                        <p class="text-h5">Distributors</p>
-                        <p class="text-grey">
-                            Click the one below that you want to see the distributor's products
-                        </p>
+        <!-- Distributors Section -->
+        <section class="distributors-section py-12">
+            <v-container>
+                <!-- Section Header -->
+                <div class="section-header text-center mb-12" data-aos="fade-up">
+                    <span class="eyebrow-dark">Distributor & Partner</span>
+                    <h2 class="section-title mb-2">Pilih Distributor</h2>
+                    <div class="heading-accent mx-auto"></div>
+                    <p class="section-desc mx-auto mt-4">
+                        Klik distributor di bawah untuk melihat produk-produk yang tersedia.
+                    </p>
+                </div>
+
+                <!-- Loading State -->
+                <v-row v-if="loading" justify="center">
+                    <v-col cols="12" sm="6" md="4" v-for="n in 6" :key="n">
+                        <v-skeleton-loader type="card" elevation="2"></v-skeleton-loader>
                     </v-col>
                 </v-row>
-                <v-row>
+
+                <!-- Vendors Grid -->
+                <v-row v-else-if="vendors.length > 0" justify="center">
                     <v-col
                         v-for="(vendor, index) in vendors"
                         :key="index"
-                        sm="12"
-                        md="12"
-                        class="pb-0"
+                        cols="12"
+                        sm="6"
+                        md="4"
+                        lg="4"
                     >
-                        <v-expansion-panels
-                            variant="accordion"
-                            v-model="panels"
-                            class="border rounded-lg overflow-hidden"
-                            elevation="0"
-                            readonly
+                        <v-card
+                            class="vendor-card card-elevated"
+                            :data-aos="'fade-up'"
+                            :data-aos-delay="(index + 1) * 50"
+                            @click="$router.push(`/product/catalog/${vendor.mt_manufacture_type ? vendor.mt_manufacture_type.name : 'all'}/${vendor.id}`)"
                         >
-                            <v-expansion-panel class="bg-grey-lighten-3" hide-actions="">
-                                <v-expansion-panel-title
-                                    color="white"
-                                    class="text-h6"
-                                    @click="$router.push(`/product/catalog/${vendor.mt_manufacture_type ? vendor.mt_manufacture_type.name : 'all'}/${vendor.id}`)"
+                            <!-- Vendor Image -->
+                            <div class="vendor-image-wrapper">
+                                <v-img
+                                    :src="`${rawStorage.vendorImg({
+                                        manufactureId: vendor.mt_manufacture_type_id || 0,
+                                        vendorId: vendor.id,
+                                    })}.png`"
+                                    height="140"
+                                    contain
+                                    class="vendor-logo"
                                 >
-                                    <v-row dense>
-                                        <v-col cols="auto">
-                                            <v-img
-                                                :src="`${rawStorage.vendorImg({
-                                                    manufactureId: vendor.mt_manufacture_type_id || 0,
-                                                    vendorId: vendor.id,
-                                                })}.png`"
-                                                width="100"
-                                                height="40"
-                                            >
-                                            </v-img>
-                                        </v-col>
-                                        <v-col cols="auto" align-self="center">
-                                            {{ vendor.name }}
-                                        </v-col>
-                                        <v-spacer></v-spacer>
-                                        <v-spacer></v-spacer>
-                                        <v-spacer></v-spacer>
-                                    </v-row>
-                                </v-expansion-panel-title>
-                                <v-expansion-panel-text>
-                                    <div
-                                        v-if="vendor.mt_product_category && vendor.mt_product_category.length > 0"
-                                        class="d-flex
-                                            flex-row
-                                            py-3
-                                            overflow-x-hidden
-                                            position-relative
-                                        "
+                                    <template #placeholder>
+                                        <div class="d-flex align-center justify-center fill-height bg-grey-lighten-2">
+                                            <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                                        </div>
+                                    </template>
+                                    <template #error>
+                                        <div class="d-flex align-center justify-center fill-height">
+                                            <v-icon size="64" color="grey-lighten-1">mdi-domain</v-icon>
+                                        </div>
+                                    </template>
+                                </v-img>
+
+                                <!-- Overlay -->
+                                <div class="vendor-overlay">
+                                    <v-btn color="accent" size="small" rounded="lg">
+                                        <v-icon start size="16">mdi-eye</v-icon>
+                                        Lihat Produk
+                                    </v-btn>
+                                </div>
+                            </div>
+
+                            <!-- Vendor Info -->
+                            <v-card-text class="pa-4">
+                                <h3 class="vendor-name">{{ vendor.name }}</h3>
+                                <p class="vendor-type text-caption text-grey mt-1">
+                                    {{ vendor.mt_manufacture_type?.name || 'General Products' }}
+                                </p>
+
+                                <!-- Categories Preview -->
+                                <div class="vendor-categories mt-3" v-if="vendor.mt_product_category?.length">
+                                    <v-chip
+                                        v-for="(cat, catIndex) in vendor.mt_product_category.slice(0, 3)"
+                                        :key="catIndex"
+                                        size="x-small"
+                                        variant="outlined"
+                                        class="mr-1 mb-1"
                                     >
-                                        <v-card
-                                            color="deep-orange"
-                                            style="z-index: 999;"
-                                            class="
-                                                position-absolute
-                                                right-0
-                                                justify-center
-                                                text-center
-                                                align-center
-                                                items-center
-                                                card-category-see-more
-                                                elevation-5
-                                            "
-                                            @click="$router.push(`/product/catalog/${vendor.mt_manufacture_type ? vendor.mt_manufacture_type.name : 'all'}/${vendor.id}`)"
-                                        >
-                                            <v-icon
-                                                size="100"
-                                            >mdi-dots-horizontal</v-icon>
-                                            <div class="py-3">See more...</div>
-                                        </v-card>
-                                        <v-card
-                                            v-for="(category, subIndex) in vendor.mt_product_category"
-                                            :key="subIndex"
-                                            class="
-                                                justify-center
-                                                text-center
-                                                align-center
-                                                items-center
-                                                me-5
-                                                card-category
-                                            "
-                                            @click="$router.push(`/product/catalog/${vendor.mt_manufacture_type ? vendor.mt_manufacture_type.name : 'all'}/${vendor.id}?category=${category.id}`)"
-                                        >
-                                            <v-img
-                                                height="130"
-                                                cover
-                                                :src="`${rawStorage.seriesImg({
-                                                    manufactureId: vendor.mt_manufacture_type_id || 0,
-                                                    vendorId: category.mt_vendor_id,
-                                                    categoryId: category.id,
-                                                    seriesId: category.mt_product_series && category.mt_product_series.length > 0 ? category.mt_product_series[0].id : null,
-                                                })}.jpg`"
-                                            >
-                                                <template #placeholder>
-                                                    <div
-                                                        class="d-flex justify-center align-center"
-                                                        style="height: 130px"
-                                                    >
-                                                        <v-progress-circular
-                                                            indeterminate
-                                                            width="5"
-                                                            size="50"
-                                                            color="deep-orange"
-                                                        />
-                                                    </div>
-                                                </template>
-                                                <template #error>
-                                                    <div
-                                                        class="d-flex justify-center align-center"
-                                                        style="height: 130px"
-                                                    >
-                                                        <v-icon
-                                                            size="100"
-                                                        >mdi-image-off-outline</v-icon>
-                                                    </div>
-                                                </template>
-                                            </v-img>
-                                            <v-divider></v-divider>
-                                            <div class="py-2 px-3 text-truncate text-subtitle-2">{{ category.name }}</div>
-                                        </v-card>
-                                    </div>
-                                </v-expansion-panel-text>
-                            </v-expansion-panel>
-                        </v-expansion-panels>
-                        <v-divider
-                            v-if="index !== vendors.length - 1"
-                            class="mt-3"
-                        />
+                                        {{ cat.name }}
+                                    </v-chip>
+                                    <v-chip
+                                        v-if="vendor.mt_product_category.length > 3"
+                                        size="x-small"
+                                        variant="flat"
+                                        color="grey-lighten-1"
+                                    >
+                                        +{{ vendor.mt_product_category.length - 3 }} more
+                                    </v-chip>
+                                </div>
+                            </v-card-text>
+
+                            <!-- Card Footer -->
+                            <v-card-actions class="px-4 pb-4">
+                                <v-btn
+                                    variant="text"
+                                    color="primary"
+                                    class="px-0"
+                                >
+                                    Jelajahi
+                                    <v-icon end size="18">mdi-arrow-right</v-icon>
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-col>
+                </v-row>
+
+                <!-- Empty State -->
+                <v-row v-else>
+                    <v-col cols="12" class="text-center py-16">
+                        <v-icon size="80" color="grey-lighten-1" class="mb-4">mdi-package-variant-closed</v-icon>
+                        <h3 class="text-h5 text-grey mb-2">Tidak Ada Distributor</h3>
+                        <p class="text-body-2 text-grey">Silakan pilih kategori lain atau hubungi kami.</p>
                     </v-col>
                 </v-row>
             </v-container>
-        </div>
+        </section>
     </landing-page-layout>
 </template>
-
 
 <script setup>
 import LandingPageLayout from "@/layouts/LandingPageLayout.vue";
@@ -233,32 +205,57 @@ import { useHead } from "@unhead/vue";
 
 const router = useRouter();
 const paramType = ref('all');
-const panels = ref([0]);
+const loading = ref(true);
 const manufactureType = ref({});
 const vendors = ref([]);
 const manufactureTypes = ref([]);
 
-// Pindahkan useHead ke dalam setup dan gunakan computed untuk nilai dinamis
 const title = ref(router.currentRoute.value.params.type || 'Our Products');
-useHead({
-    title
-});
+useHead({ title });
+
+// Category icons mapping
+const typeIcons = {
+    'Assembly': 'mdi-robot-industrial',
+    'Welding': 'mdi-lightning-bolt',
+    'Painting': 'mdi-spray',
+    'Engineering': 'mdi-cog-outline',
+    'Machining': 'mdi-cnc',
+    'Quality': 'mdi-check-decagram',
+    'Tools': 'mdi-wrench',
+    'Equipment': 'mdi-factory',
+    'default': 'mdi-package-variant'
+};
+
+function getTypeIcon(name) {
+    const lowerName = name?.toLowerCase() || '';
+    for (const [key, icon] of Object.entries(typeIcons)) {
+        if (lowerName.includes(key.toLowerCase())) {
+            return icon;
+        }
+    }
+    return typeIcons.default;
+}
 
 onMounted(async () => {
-    paramType.value = router.currentRoute.value.params.type || 'all';
+    const typeParam = router.currentRoute.value.params.type;
+
+    // Fetch categories first
     await fetchAllManufactureTypes();
 
-    if (paramType.value) {
+    // Check if type param exists and is not 'all'
+    if (typeParam && typeParam !== 'all') {
+        paramType.value = typeParam;
         await fetchManufactureType();
     } else {
+        paramType.value = 'all';
         await fetchAllVendors();
-    }    
+    }
 });
 
 const fetchAllManufactureTypes = async () => {
     await Request.get({
         url: "/api/manufacture-type",
-        useLoading: true
+        useLoading: false
     })
         .then(({ data }) => {
             manufactureTypes.value = data.data || [];
@@ -267,18 +264,23 @@ const fetchAllManufactureTypes = async () => {
 }
 
 const fetchManufactureType = async () => {
+    loading.value = true;
     await Request.get({
         url: `/api/manufacture-type/detail/name/${paramType.value}`,
         useLoading: true,
     })
         .then(({ data }) => {
-            vendors.value = data.data.mt_vendor;
+            vendors.value = data.data.mt_vendor || [];
             manufactureType.value = data.data;
         })
-        .catch((err) => {});
+        .catch((err) => {})
+        .finally(() => {
+            loading.value = false;
+        });
 }
 
 const fetchAllVendors = async () => {
+    loading.value = true;
     await Request.get({
         url: "/api/vendor",
         useLoading: true
@@ -286,18 +288,25 @@ const fetchAllVendors = async () => {
         .then(({ data }) => {
             vendors.value = data.data || [];
         })
-        .catch((err) => {});
+        .catch((err) => {})
+        .finally(() => {
+            loading.value = false;
+        });
 }
 
 watch(
     () => router.currentRoute.value.params,
-    (newParams) => {
-        if (newParams.type) {
+    async (newParams) => {
+        // Check if type param exists
+        if (newParams.type && newParams.type !== 'all') {
+            paramType.value = newParams.type;
             title.value = paramType.value;
-            fetchManufactureType();
+            await fetchManufactureType();
         } else {
+            // When type is undefined, 'all', or '/product' - fetch all vendors
+            paramType.value = 'all';
             title.value = 'Our Products';
-            fetchAllVendors();
+            await fetchAllVendors();
         }
     },
     { immediate: true }
@@ -305,32 +314,207 @@ watch(
 </script>
 
 <style scoped>
-.cursor-pointer {
-    cursor: pointer;
+/* Hero Section */
+.hero-section {
+    margin-top: -64px;
 }
-.transition-swing {
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
-}
-.transition-swing:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
-}
+
 .background-image {
     background-size: cover;
     background-position: center;
     position: relative;
 }
+
 .overlay {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1;
+    background: linear-gradient(135deg, rgba(18, 18, 18, 0.85) 0%, rgba(30, 30, 30, 0.9) 100%);
 }
+
 .text-white-container {
     position: relative;
-    z-index: 2;
+    z-index: 1;
+}
+
+.eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #D32F2F;
+    margin-bottom: 16px;
+    padding: 8px 16px;
+    background: rgba(211, 47, 47, 0.15);
+    border-radius: 4px;
+}
+
+.hero-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 3rem;
+    color: #FFFFFF;
+    margin-bottom: 16px;
+}
+
+.hero-subtitle {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+/* Section Styles */
+.categories-section {
+    background: #FAFAFA;
+}
+
+.distributors-section {
+    background: #FFFFFF;
+}
+
+.section-header {
+    margin-bottom: 32px;
+}
+
+.eyebrow-dark {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #D32F2F;
+    margin-bottom: 8px;
+}
+
+.section-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    color: #121212;
+}
+
+.heading-accent {
+    width: 50px;
+    height: 4px;
+    background: #D32F2F;
+    border-radius: 2px;
+}
+
+.section-desc {
+    font-size: 1rem;
+    color: #6B7280;
+    max-width: 500px;
+}
+
+/* Categories Chips */
+.categories-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.category-chip {
+    font-weight: 500;
+    padding: 8px 20px;
+    border-radius: 24px;
+    background: white;
+    border: 2px solid #E5E7EB;
+    transition: all 0.25s ease;
+}
+
+.category-chip:hover {
+    border-color: #1565C0;
+    background: rgba(21, 101, 192, 0.05);
+}
+
+.category-chip.chip-active {
+    background: #D32F2F;
+    border-color: #D32F2F;
+    color: white;
+}
+
+/* Vendor Cards */
+.vendor-card {
+    cursor: pointer;
+    overflow: hidden;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vendor-card:hover {
+    transform: translateY(-6px);
+}
+
+.vendor-image-wrapper {
+    position: relative;
+    background: linear-gradient(135deg, #F8F9FA 0%, #E8F4FD 100%);
+    overflow: hidden;
+}
+
+.vendor-logo {
+    padding: 16px;
+    transition: transform 0.4s ease;
+}
+
+.vendor-card:hover .vendor-logo {
+    transform: scale(1.05);
+}
+
+.vendor-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.vendor-card:hover .vendor-overlay {
+    opacity: 1;
+}
+
+.vendor-name {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: #121212;
+    margin-bottom: 4px;
+}
+
+.vendor-type {
+    color: #6B7280;
+}
+
+.vendor-categories {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+    }
+
+    .categories-chips {
+        justify-content: center;
+    }
 }
 </style>

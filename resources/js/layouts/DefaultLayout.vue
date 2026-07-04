@@ -17,7 +17,7 @@ import { useHead } from "@unhead/vue";
 
 useHead({
     titleTemplate: (subTitle) => {
-        return subTitle ? `${subTitle} - Techno` : 'Techno';
+        return subTitle ? `${subTitle} - PT. Techno Triireka` : 'PT. Techno Triireka';
     }
 })
 </script>

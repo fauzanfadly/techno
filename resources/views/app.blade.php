@@ -2,8 +2,16 @@
 <html>
 
 <head>
-    <title>PT. Techno Triireka</title>
-    {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
+    <title>PT. Techno Triireka - Industrial Solutions</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="PT. Techno Triireka - Industrial Solutions, Engineering Services, and Quality Products for Automotive Industry">
+    <meta name="theme-color" content="#1565C0">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/images/logo/logo.png">
+    <link rel="shortcut icon" type="image/png" href="/images/logo/logo.png">
+
     @php
         $isProduction = env('APP_ENV') === 'production';
         $manifestPath = $isProduction ? 'build/manifest.json' : public_path('build/manifest.json');

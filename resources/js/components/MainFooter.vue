@@ -1,9 +1,11 @@
 <template>
-    <div class="bg-deep-orange-darken-2 w-full" id="main-footer">
+    <div class="footer-wrapper" id="main-footer">
         <v-container class="py-10">
             <v-row>
                 <v-col xs="12" sm="12" md="3" class="text-white-container">
-                    <p class="text-white text-h4 mb-0">PT. Techno</p>
+                    <div class="footer-logo mb-4">
+                        <img src="/images/logo/logo.png" alt="Techno Logo" height="48" />
+                    </div>
                     <v-divider
                         class="border-white opacity-100 mb-5"
                     ></v-divider>
@@ -18,7 +20,7 @@
                         </p>
                         <p class="mb-3">
                             <v-icon icon="mdi-map-marker-outline"></v-icon>
-                            Address : Jl. Duta Boulevard L10, Duta Harapan,
+                            Jl. Duta Boulevard L10, Duta Harapan,
                             Harapan Baru, Bekasi Utara Kota Bekasi, Jawa Barat -
                             Indonesia 17123
                         </p>
@@ -95,15 +97,32 @@
                 </v-col>
             </v-row>
         </v-container>
-        <v-container fluid class="bg-deep-orange-darken-4 text-caption py-0">
+        <v-container fluid class="footer-bottom text-caption py-0">
             <v-row>
-                <v-col class="pa-0">
-                    Copyright © 2024 All rights reserved by Techno
+                <v-col class="pa-0 text-center">
+                    Copyright © 2024 PT. Techno Triireka. All rights reserved.
                 </v-col>
             </v-row>
         </v-container>
     </div>
 </template>
+
+<style scoped>
+.footer-wrapper {
+    background: linear-gradient(135deg, #121212 0%, #1E1E1E 100%);
+    color: white;
+}
+
+.footer-bottom {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 16px 0;
+    height: 24px;
+}
+
+.footer-logo img {
+    filter: brightness(0) invert(1);
+}
+</style>
 
 
 <script setup>
