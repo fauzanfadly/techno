@@ -17,4 +17,9 @@ class MtFilesStorage extends Model
     {
         return $this->hasMany(MtProduct::class, 'file_id', 'id');
     }
+
+    public function folder()
+    {
+        return $this->belongsTo(MtFolder::class, 'folder_id', 'id');
+    }
 }
