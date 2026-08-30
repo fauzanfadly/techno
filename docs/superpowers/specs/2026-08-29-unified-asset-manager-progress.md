@@ -13,7 +13,7 @@
 | 2 | Backend CRUD unified + folder | 🟢 Selesai — kode + FolderService test PASS, di-commit `7cbafa6` |
 | 3 | Frontend asset manager berfolder | 🟢 Selesai — kode + build + UI live test PASS, di-commit `25d2438` |
 | 4 | Migrasi data (680 file + mt_images_storage) | 🟡 Kode command + test PASS; user BELUM jalanin `migrate` + `assets:migrate-legacy` |
-| 5 | Switch publik + buang sistem lama | ⚪ Belum |
+| 5 | Switch publik + buang sistem lama | 🟡 Di branch `feature/asset-manager-phase-5`. Backend flip (schema+wiring+repoint relasi) SELESAI+test. Frontend (5b/5c) + cleanup (5d) belum |
 | 6 | Deploy prep + regen seeder | ⚪ Belum |
 
 Legenda: ⚪ Belum · 🟡 Berjalan · 🟢 Selesai
@@ -101,6 +101,26 @@ Deliverable:
 - [ ] **User jalankan:** `php artisan migrate` → `php artisan assets:migrate-legacy --dry-run` → `php artisan assets:migrate-legacy`
 - [ ] Verifikasi hasil di DB + `storage/app/public/upload/files` (`public/images` harus tetap utuh)
 - [ ] Commit (butuh izin user)
+
+## Fase 5 — Progress (branch `feature/asset-manager-phase-5`)
+
+Keputusan wiring (data-grounded): manufacture → `mt_images_storage` (`images:1/2/3`, lebih lengkap + tampil di landing); vendor + series → structured (`vendor:V:img`, `series:S:img/pdf`). Atomic flip (nggak bisa dipecah tanpa broken window) → dikerjakan di branch, test, commit sekali.
+
+**5a Backend flip — SELESAI + test (16 pass, 62 assert):**
+- [x] Migration `2026_08_30_000002_add_file_id_to_mt_product_series_table` (FK pdf series)
+- [x] Repoint relasi `image()` 5 model → `MtFilesStorage`; tambah `file()` di `MtProductSeries`
+- [x] Command `app/Console/Commands/WireEntitiesToFiles.php` (`assets:wire-entities --dry-run`)
+- [x] `tests/Feature/WireEntitiesToFilesTest.php` (3 test)
+
+**Belum:**
+- [ ] 5b: picker berfolder baru + wiring 5 form entity admin ke mt_files_storage
+- [ ] 5c: switch frontend publik (Vendor.vue, catalog, landing Products.vue) dari `rawStorage.*` → DB `getStorageFile(entity.image.file_path)`
+- [ ] 5d: buang `mt_images_storage`+`ImagesStorageController`+`assets-image-manager`+`rawStorage`+ImagePicker/SelectFileImageDialog lama+Form.vue nganggur
+- [ ] Test full (unit + Playwright)
+- [ ] **Eksekusi flip live** (URUT, di akhir): `php artisan migrate` (file_id) → `php artisan assets:wire-entities`. CATATAN: DB shared — begitu di-wire, main lama rusak sampai branch merge.
+- [ ] Merge branch + commit
+
+⚠️ DB tidak ikut branch. Jangan jalankan `assets:wire-entities` di live sampai frontend siap.
 
 ## Commit History
 

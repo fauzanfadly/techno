@@ -34,7 +34,12 @@ Migrasi besar sistem gambar/file project **Techno** (Laravel 11 + Vue 3) menjadi
   - Baru: migration `add_source_ref_to_mt_files_storage`, command `app/Console/Commands/MigrateLegacyAssets.php` (`assets:migrate-legacy`, `--dry-run`), `tests/Feature/MigrateLegacyAssetsTest.php` (6 pass).
   - Populate-only additive: mirror hierarki (Manufacture/Vendor/Category, series flat di category) + `mt_images_storage` → folder "Assets Lama" + `source_ref` per file. TIDAK sentuh FK/relasi/frontend/public/images. Skip aset landing.
   - **User jalankan:** `php artisan migrate` → `php artisan assets:migrate-legacy --dry-run` → `php artisan assets:migrate-legacy`.
-- **Next step:** setelah user jalanin migrasi + commit Fase 4 → **Fase 5** (flip: wiring FK entity pakai `source_ref`, repoint relasi `image()`, tambah FK pdf series, switch frontend publik dari rawStorage ke DB, buang `mt_images_storage`/`assets-image-manager`/komponen lama).
+- **Fase 4 (migrasi data): SUDAH DIJALANKAN user (2026-08-30).** Disk `storage/app/public/upload/files` terisi 1025 file + 112 folder (Assembling/Painting/Wielding/Assets Lama). `public/images` utuh (680). Command di-commit `6f8bd64`.
+- **Fase 5 (flip): SEDANG BERJALAN di branch `feature/asset-manager-phase-5`.** Atomic flip. Wiring rule: manufacture→`mt_images_storage` (images:1/2/3), vendor+series→structured.
+  - **5a backend SELESAI + test (16 pass):** migration `add_file_id_to_mt_product_series`, repoint relasi `image()` 5 model → `MtFilesStorage` + `file()` di series, command `assets:wire-entities`, `WireEntitiesToFilesTest`.
+  - Belum: 5b picker+form entity, 5c frontend publik, 5d buang sistem lama, test Playwright, eksekusi flip live, merge.
+  - ⚠️ **DB shared (nggak ikut branch).** Entity live BELUM di-wire (main masih jalan). Jangan run `assets:wire-entities` di live sampai frontend siap.
+- **Next step:** lanjut 5b (picker berfolder + 5 form entity) di branch.
 - **Temuan sampingan (di luar scope):** `AuthController@register` RUSAK (`...$user` spread model Eloquent, `AuthController.php:43`) — register API error.
 
 ## Larangan / Hati-hati
