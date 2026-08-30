@@ -2,15 +2,15 @@
 
 - **Spec:** [2026-08-29-unified-asset-manager-design.md](2026-08-29-unified-asset-manager-design.md)
 - **Mulai:** 2026-08-29
-- **Update terakhir:** 2026-08-29
-- **Resume:** anchor = `ASSET-MANAGER.md` (root). Katakan "baca `ASSET-MANAGER.md`" → dari situ baca spec (Bagian 0 = resume, Bagian 6 = peta kode), tracker ini, dan memory `asset-manager-migration.md`.
+- **Update terakhir:** 2026-08-30
+- **Resume:** anchor = `docs/ASSET-MANAGER.md`. Katakan "baca `docs/ASSET-MANAGER.md`" → dari situ baca spec (Bagian 0 = resume, Bagian 6 = peta kode, Bagian 7 = Fase 2), tracker ini, dan memory `asset-manager-migration.md`.
 
 ## Status Fase
 
 | Fase | Deskripsi | Status |
 |---|---|---|
-| 1 | Kunci data model (desain + migration) | 🟢 Selesai — migrate sukses, schema terverifikasi (2026-08-29) |
-| 2 | Backend CRUD unified + folder | ⚪ Belum |
+| 1 | Kunci data model (desain + migration) | 🟢 Selesai — migrate sukses, di-commit `4428d3f` |
+| 2 | Backend CRUD unified + folder | 🟡 Kode + automated test FolderService PASS (5 test/20 assert); test HTTP controller+auth BELUM |
 | 3 | Frontend asset manager berfolder | ⚪ Belum |
 | 4 | Migrasi data (680 file + mt_images_storage) | ⚪ Belum |
 | 5 | Switch publik + buang sistem lama | ⚪ Belum |
@@ -37,30 +37,51 @@ Deliverable:
 
 Catatan unique(parent_id,name): MySQL anggap NULL distinct, jadi folder root (parent_id NULL) dengan nama sama TIDAK tercegah di level DB — perlu cek app-level saat CRUD folder root (Fase 2).
 
-## Perubahan Belum Di-commit (per 2026-08-29)
+## Fase 2 — Task Detail
 
-Menunggu izin user untuk commit. File yang berubah/baru:
-- `database/migrations/2026_08_29_000001_create_mt_folders_table.php` (baru)
-- `database/migrations/2026_08_29_000002_add_folder_id_to_mt_files_storage_table.php` (baru)
-- `app/Models/MtFolder.php` (baru)
-- `app/Models/MtFilesStorage.php` (edit — tambah relasi `folder()`)
-- `ASSET-MANAGER.md` (baru — anchor resume)
-- `docs/superpowers/specs/2026-08-29-unified-asset-manager-design.md` (baru — spec)
-- `docs/superpowers/specs/2026-08-29-unified-asset-manager-progress.md` (baru — tracker ini)
+Keputusan terkunci (detail di spec Bagian 7):
+- [x] Tipe file → whitelist (image/dokumen/teks, tolak executable)
+- [x] Max size → image 10MB / dokumen 50MB (split; PDF terbesar existing 43.59MB)
+- [x] Hapus folder → cascade + auto-detach FK, transaksional
+- [x] Transisi: auto-detach Fase 2 HANYA `mt_product.file_id` (image_id ditunda Fase 5, hindari overlap id-space)
+
+Deliverable:
+- [x] `app/Services/FolderService.php` (baru) — create/update(rename+move)/delete/detach, mirror fisik
+- [x] `app/Services/UploadFileServices.php` (edit) — `saveUploadFile($file, $folderPath)`
+- [x] `app/Http/Controllers/FoldersController.php` (baru)
+- [x] `app/Http/Controllers/FilesStorageController.php` (rombak total)
+- [x] `routes/api.php` (edit) — grup `assets-manager/folder/*` + `file/*`; `image/*` dibiarkan
+- [x] Lint `php -l` clean + `route:list` keregister + app boot bersih
+- [x] **Fix keamanan `phpunit.xml`** — aktifin `DB_CONNECTION=sqlite` / `:memory:` (sebelumnya di-comment → `php artisan test` bakal hantam mysql `techno` asli via RefreshDatabase). Sekarang test terisolasi.
+- [x] `tests/Feature/FolderServiceTest.php` — 5 test PASS: create/rename/move/reject-descendant/delete-cascade. Termasuk assert transition-safety `image_id` tak tersentuh.
+- [ ] **Test HTTP controller + auth:api** (upload multipart, validasi, remove) — belum (butuh token; logika inti sudah tercover service test)
+- [ ] Commit (butuh izin user)
+
+Saran smoke test (via API client, header Authorization Bearer token):
+1. `POST assets-manager/folder/create` (root, lalu nested pakai parent_id) → cek `path` benar + dir fisik `storage/app/public/upload/files/...` kebuat
+2. `POST assets-manager/file/create` (multipart: name, folder_id, file) → cek row + file fisik di path mirror
+3. `POST assets-manager/file/update/{id}` kirim `folder_id` beda → cek file fisik pindah
+4. `POST assets-manager/folder/update/{id}` rename/move → cek `path` turunan + `file_path` file turunan ke-rewrite + dir fisik pindah
+5. `DELETE assets-manager/folder/delete/{id}` folder berisi → cek cascade (row+fisik hilang) + `mt_product.file_id` yang nunjuk jadi null
+
+Catatan edge (untuk diperhatikan saat test):
+- Validasi tipe file pakai **ekstensi** (bukan mime-guess) — hindari false-reject csv/svg, tapi lebih lemah dari cek mime. Cukup untuk admin di balik auth.
+- File servable butuh `php artisan storage:link` (symlink `public/storage`). Tidak wajib untuk test API, wajib untuk render.
+
+## Perubahan Belum Di-commit (per 2026-08-30)
+
+Fase 1 SUDAH di-commit (`4428d3f`). Yang belum (kode Fase 2 + doc):
+- `app/Services/FolderService.php` (baru)
+- `app/Services/UploadFileServices.php` (edit)
+- `app/Http/Controllers/FoldersController.php` (baru)
+- `app/Http/Controllers/FilesStorageController.php` (rombak)
+- `routes/api.php` (edit)
+- `phpunit.xml` (edit — aktifin sqlite in-memory buat testing)
+- `tests/Feature/FolderServiceTest.php` (baru)
+- `docs/ASSET-MANAGER.md`, `docs/superpowers/specs/*design.md`, `*progress.md` (update)
 
 Usulan commit message (belum dieksekusi):
-`feat: Phase 1 unified asset manager - add mt_folders table + folder_id on mt_files_storage`
-
-## Fase 2 — Catatan Awal (belum di-brainstorm)
-
-Scope: rombak backend jadi asset manager berfolder. Titik-titik yang harus diputuskan saat brainstorm Fase 2:
-- **CRUD folder:** endpoint create / rename / move / delete. Karena disk mirror (Keputusan #3), rename & move harus **pindah file fisik + rewrite `file_path` + `folder.path` semua turunan**, dibungkus DB transaction + rollback file kalau gagal.
-- **Delete folder:** hapus file fisik turunan + row DB (cascade). Perlu putuskan: tolak kalau ada file di dalam, atau cascade.
-- **Upload file:** generalisasi `UploadFileServices` supaya terima semua tipe (bukan cuma pdf/image). Tentukan validasi mime yang diizinkan.
-- **Fix `FilesStorageController`** yang rusak (lihat Peta Kode Bagian 6.4 di spec): `store()` cuma `mimes:pdf`, `update()` referensi kolom `image_path`/`pdf_file_path` yang tak ada.
-- **List/browse:** endpoint list isi folder (subfolder + file) per `folder_id`.
-- **Validasi app-level:** cegah nama folder kembar di root (parent_id NULL) — DB tak menjaga ini.
-- **Route API:** pola `resource` mengikuti konvensi existing di `routes/api.php`.
+`feat: Phase 2 unified asset manager - folder CRUD + unified file storage backend + tests`
 
 ## Catatan Antar-Sesi
 

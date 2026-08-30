@@ -52,15 +52,18 @@ class UploadFileServices
      * @param \Illuminate\Http\UploadedFile | \Illuminate\Http\UploadedFile[] | array $file 
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function saveUploadFile($file)
+    public function saveUploadFile($file, ?string $folderPath = null)
     {
         $data = [];
         try {
-            // Generate a unique image name
+            // Generate a unique file name
             $data['file_name'] = Carbon::now()->timestamp . '_' . $file->getClientOriginalName();
 
-            // Store the image and get the path
-            $data['file_path'] = $file->storeAs($this->filePath, $data['file_name'], 'public');
+            // Mirror the folder tree on disk: upload/files/<folderPath>/<file_name>
+            $dir = $folderPath ? $this->filePath . '/' . $folderPath : $this->filePath;
+
+            // Store the file and get the path
+            $data['file_path'] = $file->storeAs($dir, $data['file_name'], 'public');
 
             // Capture additional metadata
             $data['file_extension'] = $file->getClientOriginalExtension();

@@ -1,13 +1,13 @@
 # Unified Asset Manager — Design Spec
 
-- **Tanggal:** 2026-08-29
-- **Status:** Fase 1 (data model) disetujui. Fase 2–6 belum di-brainstorm detail.
+- **Tanggal:** 2026-08-29 (update 2026-08-30)
+- **Status:** Fase 1 SELESAI & di-commit. Fase 2 (backend CRUD + folder) desain disetujui, implementasi berjalan. Fase 3–6 belum di-brainstorm detail.
 - **Progress tracker:** [2026-08-29-unified-asset-manager-progress.md](2026-08-29-unified-asset-manager-progress.md)
 
 ## 0. Cara Melanjutkan di Sesi Baru
 
-> **Anchor resume = `ASSET-MANAGER.md` (root project).** Di chat baru cukup katakan:
-> **"baca `ASSET-MANAGER.md`"**
+> **Anchor resume = `docs/ASSET-MANAGER.md`.** Di chat baru cukup katakan:
+> **"baca `docs/ASSET-MANAGER.md`"**
 
 Saat itu terjadi, lakukan urutan ini sebelum bertindak:
 
@@ -17,7 +17,7 @@ Saat itu terjadi, lakukan urutan ini sebelum bertindak:
 4. **Baca Bagian 6 (Peta Kode)** di file ini — semua lokasi `file:line` yang relevan. Pakai ini supaya TIDAK perlu explore codebase dari nol.
 5. Lihat "Langkah Berikutnya" di bawah, konfirmasi ke user, baru kerja.
 
-**Langkah berikutnya saat ini (2026-08-29):** Fase 1 desain sudah disetujui. Yang belum: implementasi Fase 1 (2 migration + model `MtFolder` + relasi `folder()`). Tunggu user pilih "gas implementasi" atau "review spec dulu". Jangan commit/push tanpa izin.
+**Langkah berikutnya saat ini (2026-08-30):** Fase 1 selesai & di-commit (`4428d3f`). Fase 2 desain disetujui (lihat Bagian 7), implementasi backend berjalan. Setelah kode Fase 2 jadi: user jalankan test manual endpoint, lalu lanjut Fase 3 (frontend). Jangan commit/push tanpa izin.
 
 ## 1. Latar Belakang & Masalah
 
@@ -189,3 +189,54 @@ Eager-load relasi image: `ManufactureTypeController:25`, `VendorController:23`, 
 ### 6.6 gitignore (relevan Fase 6)
 
 `.gitignore` sekarang meng-ignore: `/public/build`, `/public/hot`, `/public/storage` (symlink). TIDAK meng-ignore `/public/images` & `/public/pdf` (jadi 680 file ikut ke-track git). Fase 6: lepas `storage/app/public/upload` dari ignore untuk deploy cPanel.
+
+## 7. Fase 2 — Desain (Disetujui 2026-08-30)
+
+Backend asset manager berfolder. Backend-only; UI di Fase 3.
+
+### 7.1 Keputusan Terkunci
+
+| # | Keputusan | Pilihan |
+|---|---|---|
+| Tipe file | Whitelist | image: `jpg,jpeg,png,webp,gif,svg`; dokumen: `pdf,doc,docx,xls,xlsx,ppt,pptx`; teks: `txt,csv`. Tolak executable. |
+| Max size | Split per tipe | image = **10MB** (10240 KB); dokumen/teks = **50MB** (51200 KB). Dipilih karena PDF terbesar existing = 43.59MB. |
+| Hapus folder | Cascade + auto-detach | Hapus subfolder+file (DB+fisik) + set FK entity null, dalam 1 transaction. Frontend wajib konfirmasi. |
+| Layout disk | Mirror | Base `upload/files`; `folder.path` = path relatif; file_path = `upload/files/<folder.path>/<file_name>`. |
+
+### 7.2 Transisi Penting (hindari bug)
+
+Di Fase 2–4, kolom `image_id` 5 entity MASIH menunjuk `mt_images_storage`, BUKAN `mt_files_storage`. Karena id-space kedua tabel overlap (sama-sama mulai 1), auto-detach TIDAK BOLEH menyentuh `image_id` berdasarkan id `mt_files_storage` — bisa salah null-kan entity. **Auto-detach di Fase 2 hanya untuk FK yang benar-benar menunjuk `mt_files_storage` = `mt_product.file_id`.** Detach `image_id` (5 entity) DITAMBAHKAN di Fase 5 setelah relasi di-repoint.
+
+Implementasi: `FolderService` punya map `$fileReferences` = daftar `[Model, kolom]` yang menunjuk `mt_files_storage`. Fase 2 isinya `[[MtProduct, 'file_id']]`. Fase 5 tambah 5 entri `image_id`.
+
+### 7.3 Komponen
+
+1. **`app/Services/FolderService.php`** (baru) — otak folder:
+   - `segment(name)` sanitasi (trim, buang `/ \`, spasi boleh).
+   - `buildPath(parent, name)` → path relatif.
+   - `create(parentId, name)` → bikin dir fisik + row.
+   - `update(folder, name?, parentId?)` → rename &/atau move: `File::moveDirectory` fisik (subtree ikut) lalu rewrite `path` folder turunan + `file_path` file turunan dalam transaction; revert FS jika DB gagal. Tolak move ke diri/keturunan sendiri.
+   - `delete(folder)` → kumpulkan self+turunan → transaction (detach `$fileReferences`, hapus file rows, hapus folder rows) → `File::deleteDirectory`.
+   - `detach(fileIds)` → set FK null untuk tiap `[Model,kolom]` di `$fileReferences`.
+2. **`app/Http/Controllers/FoldersController.php`** (baru) — `index(?parent_id)`, `store` (cek nama kembar app-level termasuk root NULL), `update`, `destroy`.
+3. **`app/Http/Controllers/FilesStorageController.php`** (rombak total) — `index(?folder_id)`, `store` (upload+folder), `update` (rename/replace/move), `remove` (detach entity), `destroy` (detach + hapus fisik+row).
+4. **`app/Services/UploadFileServices.php`** (edit) — `saveUploadFile($file, $folderPath = null)` simpan ke `upload/files/<folderPath>`. `saveUploadImage` lama dibiarkan sampai Fase 5.
+5. **`routes/api.php`** (edit) — tambah grup `assets-manager/folder/*` dan `assets-manager/file/*`. Route `image/*` lama dibiarkan.
+
+### 7.4 Endpoint (auth:api, prefix `assets-manager`)
+
+```
+folder:  GET /folder?parent_id= · POST /folder/create · POST /folder/update/{id} · DELETE /folder/delete/{id}
+file:    GET /file?folder_id=   · POST /file/create   · POST /file/update/{id}   · DELETE /file/remove/{id} · DELETE /file/delete/{id}
+```
+
+### 7.5 Validasi
+
+- **Folder store:** `name` required string; `parent_id` nullable exists `mt_folders`. Cek app-level nama kembar di parent sama (termasuk root `parent_id=NULL` yang tak dijaga unique DB).
+- **File store:** `name` required; `description` nullable; `folder_id` nullable exists `mt_folders`; `file` required + `mimes:<whitelist>` + `max:51200`. Lalu cek manual: jika ekstensi image dan size > 10MB → error.
+
+### 7.6 Penanganan Gagal FS+DB
+
+- **Folder move/rename:** `File::moveDirectory` dulu → bulk-update DB dalam transaction → commit. FS gagal → throw sebelum DB. DB gagal setelah FS pindah → revert (`moveDirectory` balik).
+- **Delete:** transaction (detach + hapus row) → commit → baru hapus fisik. Fisik gagal setelah commit = sisa file yatim (bukan referensi menggantung, aman).
+- Pakai facade `Illuminate\Support\Facades\File` untuk operasi direktori (path absolut via `Storage::disk('public')->path()`), `Storage` untuk operasi file relatif.

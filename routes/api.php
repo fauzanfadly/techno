@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ImagesStorageController;
+use App\Http\Controllers\FilesStorageController;
+use App\Http\Controllers\FoldersController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductSeriesController;
 use App\Http\Controllers\ProductCategoryController;
@@ -32,12 +34,30 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get('my-user', [AuthController::class, 'myUser']);
 
     Route::prefix('assets-manager')->group(function () {
+        // Sistem lama (mt_images_storage) - dibiarkan hidup sampai Fase 5
         Route::prefix('image')->group(function () {
             Route::get('/', [ImagesStorageController::class, 'index']);
             Route::post('/create', [ImagesStorageController::class, 'store']);
             Route::post('/update/{id}', [ImagesStorageController::class, 'update']);
             Route::delete('/remove/{id}', [ImagesStorageController::class, 'remove']);
             Route::delete('/delete/{id}', [ImagesStorageController::class, 'destroy']);
+        });
+
+        // Sistem baru berfolder (mt_folders + mt_files_storage)
+        Route::prefix('folder')->group(function () {
+            Route::get('/', [FoldersController::class, 'index']);
+            Route::post('/create', [FoldersController::class, 'store']);
+            Route::post('/update/{id}', [FoldersController::class, 'update']);
+            Route::delete('/delete/{id}', [FoldersController::class, 'destroy']);
+        });
+
+        Route::prefix('file')->group(function () {
+            Route::get('/', [FilesStorageController::class, 'index']);
+            Route::get('/detail/{id}', [FilesStorageController::class, 'show']);
+            Route::post('/create', [FilesStorageController::class, 'store']);
+            Route::post('/update/{id}', [FilesStorageController::class, 'update']);
+            Route::delete('/remove/{id}', [FilesStorageController::class, 'remove']);
+            Route::delete('/delete/{id}', [FilesStorageController::class, 'destroy']);
         });
     });
 
