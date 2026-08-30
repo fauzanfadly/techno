@@ -10,8 +10,8 @@
 | Fase | Deskripsi | Status |
 |---|---|---|
 | 1 | Kunci data model (desain + migration) | 🟢 Selesai — migrate sukses, di-commit `4428d3f` |
-| 2 | Backend CRUD unified + folder | 🟡 Kode + automated test FolderService PASS (5 test/20 assert); test HTTP controller+auth BELUM |
-| 3 | Frontend asset manager berfolder | ⚪ Belum |
+| 2 | Backend CRUD unified + folder | 🟢 Selesai — kode + FolderService test PASS, di-commit `7cbafa6` |
+| 3 | Frontend asset manager berfolder | 🟡 Kode + build vite + TEST UI LIVE (Playwright) PASS; belum di-commit |
 | 4 | Migrasi data (680 file + mt_images_storage) | ⚪ Belum |
 | 5 | Switch publik + buang sistem lama | ⚪ Belum |
 | 6 | Deploy prep + regen seeder | ⚪ Belum |
@@ -33,7 +33,9 @@ Deliverable:
 - [x] Spec ditulis (file design)
 - [x] Lint `php -l` clean semua file
 - [x] **`php artisan migrate` dijalankan user — sukses, schema terverifikasi via DESCRIBE**
-- [ ] Commit (butuh izin user)
+- [x] Di-commit `7cbafa6`
+- [x] **Verifikasi HTTP tambahan (via UI Playwright, 2026-08-30):** `FilesStorageController@update` lolos live — rename (name only), move file A→B (relokasi fisik + `file_path`/`folder_id` update), replace/ganti file (hapus fisik lama + simpan baru + ekstensi berubah). Verified DB & disk.
+- [ ] Sisa belum dites (risiko rendah, boleh skip): `FilesStorageController@remove` (detach entity — belum ada konsumen sampai Fase 5), validasi whitelist tipe + cap 10MB gambar.
 
 Catatan unique(parent_id,name): MySQL anggap NULL distinct, jadi folder root (parent_id NULL) dengan nama sama TIDAK tercegah di level DB — perlu cek app-level saat CRUD folder root (Fase 2).
 
@@ -68,20 +70,38 @@ Catatan edge (untuk diperhatikan saat test):
 - Validasi tipe file pakai **ekstensi** (bukan mime-guess) — hindari false-reject csv/svg, tapi lebih lemah dari cek mime. Cukup untuk admin di balik auth.
 - File servable butuh `php artisan storage:link` (symlink `public/storage`). Tidak wajib untuk test API, wajib untuk render.
 
+## Fase 3 — Task Detail
+
+Keputusan terkunci (detail di spec Bagian 8):
+- [x] Layout → two-pane (pohon folder + grid file)
+- [x] Scope diperkecil: Fase 3 HANYA manager mandiri; picker + 5 form entity + PDF picker product → digeser Fase 5 (transition-safety)
+
+Deliverable:
+- [x] `resources/js/pages/admin/assets-file-manager/Index.vue` (rebuild total → two-pane)
+- [x] `resources/js/components/asset-manager/FolderTree.vue` (rekursif)
+- [x] `NamePromptDialog.vue` + `name_prompt_dialog.js`
+- [x] `MoveDialog.vue` + `move_dialog.js`
+- [x] `FileUploadDialog.vue` + `file_upload_dialog.js`
+- [x] `npm run build` (vite) LOLOS
+- [x] **Test UI live via Playwright MCP (2026-08-30) PASS:** login → render two-pane → create folder root (DB + dir fisik `upload/files/MyTorq`) → pilih folder (breadcrumb + tombol aksi) → upload gambar (DB row + file fisik mirror + thumbnail ter-serve via `storage:link`) → `files_count` update → hapus folder (dialog konfirmasi cascade → row + file fisik hilang). Semua verified di DB & disk.
+- [ ] Commit (butuh izin user)
+
+Catatan test: butuh viewport lebar (≥md) supaya nav drawer permanent (kalau sempit, scrim drawer nutupin klik). Register endpoint `AuthController@register` RUSAK (`...$user` spread model, line 43) — di luar scope, tapi nyata. Pakai user test via tinker buat login (sudah dihapus lagi).
+
+Utang teknis (cleanup Fase 5): `assets-file-manager/Form.vue` + route create/detail jadi tak terpakai; MoveDialog belum grey-out keturunan (backend yang cegah).
+
 ## Perubahan Belum Di-commit (per 2026-08-30)
 
-Fase 1 SUDAH di-commit (`4428d3f`). Yang belum (kode Fase 2 + doc):
-- `app/Services/FolderService.php` (baru)
-- `app/Services/UploadFileServices.php` (edit)
-- `app/Http/Controllers/FoldersController.php` (baru)
-- `app/Http/Controllers/FilesStorageController.php` (rombak)
-- `routes/api.php` (edit)
-- `phpunit.xml` (edit — aktifin sqlite in-memory buat testing)
-- `tests/Feature/FolderServiceTest.php` (baru)
+Fase 1 (`4428d3f`) & Fase 2 (`7cbafa6`) SUDAH di-commit. Yang belum (kode Fase 3 + doc):
+- `resources/js/pages/admin/assets-file-manager/Index.vue` (rebuild)
+- `resources/js/components/asset-manager/FolderTree.vue` (baru)
+- `resources/js/components/dialogs/NamePromptDialog.vue` + `utils/name_prompt_dialog.js` (baru)
+- `resources/js/components/dialogs/MoveDialog.vue` + `utils/move_dialog.js` (baru)
+- `resources/js/components/dialogs/FileUploadDialog.vue` + `utils/file_upload_dialog.js` (baru)
 - `docs/ASSET-MANAGER.md`, `docs/superpowers/specs/*design.md`, `*progress.md` (update)
 
-Usulan commit message (belum dieksekusi):
-`feat: Phase 2 unified asset manager - folder CRUD + unified file storage backend + tests`
+Usulan commit message (belum dieksekusi, tunggu test browser):
+`feat: Phase 3 unified asset manager - two-pane folder file manager UI`
 
 ## Catatan Antar-Sesi
 

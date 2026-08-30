@@ -240,3 +240,33 @@ file:    GET /file?folder_id=   · POST /file/create   · POST /file/update/{id}
 - **Folder move/rename:** `File::moveDirectory` dulu → bulk-update DB dalam transaction → commit. FS gagal → throw sebelum DB. DB gagal setelah FS pindah → revert (`moveDirectory` balik).
 - **Delete:** transaction (detach + hapus row) → commit → baru hapus fisik. Fisik gagal setelah commit = sisa file yatim (bukan referensi menggantung, aman).
 - Pakai facade `Illuminate\Support\Facades\File` untuk operasi direktori (path absolut via `Storage::disk('public')->path()`), `Storage` untuk operasi file relatif.
+
+## 8. Fase 3 — Desain (Disetujui 2026-08-30)
+
+Frontend. Scope diperkecil demi transition-safety.
+
+### 8.1 Keputusan Terkunci
+
+- **Layout:** two-pane (pohon folder kiri + grid file kanan), gaya Windows Explorer / Google Drive.
+- **Scope Fase 3 = HANYA rebuild halaman `assets-file-manager` jadi manager mandiri.** Picker berfolder baru + PDF picker `product.file_id` + wiring 5 form entity → SEMUA digeser ke Fase 5 (barengan repoint relasi). Alasan: kalau form entity dialihkan sekarang, `image_id` di-set = id `mt_files_storage` tapi relasi `image()` masih baca `mt_images_storage` → preview rusak saat reload. Tidak ada konsumen picker di Fase 3 (YAGNI).
+- Komponen lama (`ImagePicker`, `SelectFileImageDialog`, `assets-file-manager/Form.vue`, route create/detail) DIBIARKAN sampai Fase 5.
+
+### 8.2 File Dibuat
+
+- `resources/js/pages/admin/assets-file-manager/Index.vue` — rebuild total jadi two-pane manager (orchestrator + grid + semua handler).
+- `resources/js/components/asset-manager/FolderTree.vue` — pohon folder rekursif (self-referencing SFC), props `nodes/selectedId/disabledId/openIds`, emit `select/toggle`.
+- `resources/js/components/dialogs/NamePromptDialog.vue` + `utils/name_prompt_dialog.js` — input satu nama (buat folder / rename folder / rename file).
+- `resources/js/components/dialogs/MoveDialog.vue` + `utils/move_dialog.js` — pilih folder tujuan via tree (move folder/file).
+- `resources/js/components/dialogs/FileUploadDialog.vue` + `utils/file_upload_dialog.js` — upload (create) / ganti isi (replace).
+
+### 8.3 Pola Dipakai
+
+- Idiom singleton-dialog (util reactive ref + open/close + `onSubmit` callback), dimount di `Index.vue`.
+- API via `Request` (`utils/request.ts`); konsumsi `/api/assets-manager/folder/*` + `/file/*` (Fase 2). Konfirmasi hapus via `openMessage` (actionButtons). Notifikasi via `openSnackbar`. URL file via `getStorageFile(file_path)`.
+- Tree dibangun client-side dari list flat `GET /folder` (pakai `parent_id`); `files_count`/`children_count` dari `withCount`.
+
+### 8.4 Catatan / Utang Teknis
+
+- Build vite lolos; UI runtime browser belum dites (butuh app jalan + login admin).
+- `assets-file-manager/Form.vue` + route `admin-assets-file-manager-create|detail` jadi tak terpakai (manager inline) → cleanup Fase 5.
+- MoveDialog cuma disable node yang dipindah; move ke keturunannya dicegah backend (error muncul via snackbar), belum di-grey di UI.
