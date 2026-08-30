@@ -270,3 +270,49 @@ Frontend. Scope diperkecil demi transition-safety.
 - Build vite lolos; UI runtime browser belum dites (butuh app jalan + login admin).
 - `assets-file-manager/Form.vue` + route `admin-assets-file-manager-create|detail` jadi tak terpakai (manager inline) → cleanup Fase 5.
 - MoveDialog cuma disable node yang dipindah; move ke keturunannya dicegah backend (error muncul via snackbar), belum di-grey di UI.
+
+## 9. Fase 4 — Desain (Disetujui 2026-08-30)
+
+Migrasi data legacy → sistem baru. **Populate-only, additive, idempotent, non-destruktif.**
+
+### 9.1 Keputusan Terkunci
+
+| # | Keputusan | Pilihan |
+|---|---|---|
+| Struktur folder | Mirror hierarki | Manufacture / Vendor / Category (nama asli dari DB); file series (img+pdf) flat di folder Category. Manufacture img di folder Manufacture, vendor img di folder Vendor. ~110 folder. |
+| Scope Fase 4 | Populate-only | Isi `mt_folders` + `mt_files_storage` + copy fisik ke `storage/upload/files`. TIDAK sentuh FK entity / relasi / frontend / `public/images`. Semua flip → Fase 5. |
+| `mt_images_storage` | Migrasi semua ke folder "Assets Lama" | 7 row → folder khusus, `source_ref=images:<id>`. Fase 5 pilih pemenang per entity. |
+| Aset landing | Skip | `logo`, `client_logos`, `authorized_distributor_logos` TIDAK dimigrasi (tetap di `public/`). |
+
+### 9.2 Inventory (live)
+
+643 series img + 362 series pdf + 13 vendor img + 1 manufacture img (structured) + 7 `mt_images_storage` = **~1026 file**. Entity: 3 manufacture, 13 vendor, 94 category, 643 series, 0 product. Path meng-encode id (`manufacture_type_M/vendor_V/category_C/series/series_S_*`) → mapping fully derivable.
+
+### 9.3 Kolom `source_ref`
+
+Migration `2026_08_30_000001_add_source_ref_to_mt_files_storage_table` — kolom nullable string ber-index di `mt_files_storage`. Format: `series:74:img`, `series:74:pdf`, `vendor:2:img`, `manufacture:1:img`, `images:5`. Dipakai Fase 5 untuk wiring FK deterministik. (Bisa di-drop di Fase 6 setelah wiring selesai.)
+
+### 9.4 Command `assets:migrate-legacy`
+
+`app/Console/Commands/MigrateLegacyAssets.php`. Opsi: `--dry-run`, `--images-path=`, `--pdf-path=` (default `public/images`, `public/pdf`; override dipakai test).
+- Bangun folder hierarki dari data entity live (dedupe by parent+name, reuse folder existing → idempotent).
+- Walk `public/images` + `public/pdf`, regex path → tentukan entity level + id, tempatkan file di folder yang tepat, copy fisik + insert row `mt_files_storage` (+`source_ref`).
+- `mt_images_storage` → folder "Assets Lama".
+- Skip aset landing. Idempotent: skip kalau `source_ref` sudah ada. Non-destruktif: hanya baca sumber + tulis row/file baru.
+
+### 9.5 Verifikasi
+
+`tests/Feature/MigrateLegacyAssetsTest.php` — 6 test PASS (hierarki nama asli, source_ref+copy fisik, skip landing, Assets Lama, idempotent, dry-run nulis nol). Full suite 13 pass.
+
+### 9.6 Cara Menjalankan (USER, karena sentuh DB + file)
+
+1. `php artisan migrate` (kolom `source_ref`)
+2. `php artisan assets:migrate-legacy --dry-run` (preview jumlah folder/file)
+3. `php artisan assets:migrate-legacy` (eksekusi)
+4. Verifikasi: `storage/app/public/upload/files/...` terisi + row `mt_files_storage` bertambah. `public/images` HARUS tetap utuh.
+
+### 9.7 Utang / Catatan Fase 5
+
+- Series butuh FK untuk PDF (`mt_product_series` cuma punya `image_id`) — tambah kolom di Fase 5 saat wiring.
+- Duplikasi manufacture/vendor (structured vs `mt_images_storage`) — Fase 5 pilih pemenang via `source_ref`.
+- Nama file di disk dipertahankan (`series_74_img.jpg`) — unik dalam folder tujuan.

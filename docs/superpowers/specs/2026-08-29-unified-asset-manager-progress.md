@@ -12,7 +12,7 @@
 | 1 | Kunci data model (desain + migration) | 🟢 Selesai — migrate sukses, di-commit `4428d3f` |
 | 2 | Backend CRUD unified + folder | 🟢 Selesai — kode + FolderService test PASS, di-commit `7cbafa6` |
 | 3 | Frontend asset manager berfolder | 🟢 Selesai — kode + build + UI live test PASS, di-commit `25d2438` |
-| 4 | Migrasi data (680 file + mt_images_storage) | ⚪ Belum |
+| 4 | Migrasi data (680 file + mt_images_storage) | 🟡 Kode command + test PASS; user BELUM jalanin `migrate` + `assets:migrate-legacy` |
 | 5 | Switch publik + buang sistem lama | ⚪ Belum |
 | 6 | Deploy prep + regen seeder | ⚪ Belum |
 
@@ -89,6 +89,18 @@ Deliverable:
 Catatan test: butuh viewport lebar (≥md) supaya nav drawer permanent (kalau sempit, scrim drawer nutupin klik). Register endpoint `AuthController@register` RUSAK (`...$user` spread model, line 43) — di luar scope, tapi nyata. Pakai user test via tinker buat login (sudah dihapus lagi).
 
 Utang teknis (cleanup Fase 5): `assets-file-manager/Form.vue` + route create/detail jadi tak terpakai; MoveDialog belum grey-out keturunan (backend yang cegah).
+
+## Fase 4 — Task Detail
+
+Keputusan terkunci (detail di spec Bagian 9): struktur mirror hierarki (series flat di category), populate-only additive + `source_ref`, `mt_images_storage` → folder "Assets Lama", skip aset landing.
+
+Deliverable:
+- [x] Migration `2026_08_30_000001_add_source_ref_to_mt_files_storage_table.php`
+- [x] Command `app/Console/Commands/MigrateLegacyAssets.php` (`--dry-run`, `--images-path`, `--pdf-path`; idempotent, non-destruktif)
+- [x] `tests/Feature/MigrateLegacyAssetsTest.php` — 6 test PASS (full suite 13 pass)
+- [ ] **User jalankan:** `php artisan migrate` → `php artisan assets:migrate-legacy --dry-run` → `php artisan assets:migrate-legacy`
+- [ ] Verifikasi hasil di DB + `storage/app/public/upload/files` (`public/images` harus tetap utuh)
+- [ ] Commit (butuh izin user)
 
 ## Commit History
 

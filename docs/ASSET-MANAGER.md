@@ -30,7 +30,11 @@ Migrasi besar sistem gambar/file project **Techno** (Laravel 11 + Vue 3) menjadi
 - **Fase 3 (frontend two-pane manager): SELESAI & di-commit (`25d2438`).** Kode + build + TEST UI LIVE (Playwright) PASS.
   - Rebuild `pages/admin/assets-file-manager/Index.vue` jadi two-pane; baru: `components/asset-manager/FolderTree.vue`, dialog `NamePromptDialog`/`MoveDialog`/`FileUploadDialog` + util singleton-nya.
   - Scope diperkecil: picker berfolder + PDF picker product + 5 form entity DIGESER ke Fase 5 (transition-safety). Komponen lama dibiarkan. Utang cleanup Fase 5: `assets-file-manager/Form.vue` + route create/detail jadi nganggur.
-- **Next step:** Fase 4 (migrasi data 680 file `public/images`+pdf + `mt_images_storage` → storage) ATAU Fase 5 (switch publik + repoint relasi + wiring form entity + buang sistem lama). Belum di-brainstorm detail.
+- **Fase 4 (migrasi data): KODE + test PASS, user BELUM jalanin command, belum di-commit.**
+  - Baru: migration `add_source_ref_to_mt_files_storage`, command `app/Console/Commands/MigrateLegacyAssets.php` (`assets:migrate-legacy`, `--dry-run`), `tests/Feature/MigrateLegacyAssetsTest.php` (6 pass).
+  - Populate-only additive: mirror hierarki (Manufacture/Vendor/Category, series flat di category) + `mt_images_storage` → folder "Assets Lama" + `source_ref` per file. TIDAK sentuh FK/relasi/frontend/public/images. Skip aset landing.
+  - **User jalankan:** `php artisan migrate` → `php artisan assets:migrate-legacy --dry-run` → `php artisan assets:migrate-legacy`.
+- **Next step:** setelah user jalanin migrasi + commit Fase 4 → **Fase 5** (flip: wiring FK entity pakai `source_ref`, repoint relasi `image()`, tambah FK pdf series, switch frontend publik dari rawStorage ke DB, buang `mt_images_storage`/`assets-image-manager`/komponen lama).
 - **Temuan sampingan (di luar scope):** `AuthController@register` RUSAK (`...$user` spread model Eloquent, `AuthController.php:43`) — register API error.
 
 ## Larangan / Hati-hati
