@@ -25,12 +25,13 @@ Migrasi besar sistem gambar/file project **Techno** (Laravel 11 + Vue 3) menjadi
   - Baru: `app/Services/FolderService.php`, `app/Http/Controllers/FoldersController.php`, `tests/Feature/FolderServiceTest.php`; rombak `app/Http/Controllers/FilesStorageController.php`; edit `app/Services/UploadFileServices.php` + `routes/api.php` + `phpunit.xml`.
   - Endpoint: `assets-manager/folder/*` + `assets-manager/file/*` (auth:api). `image/*` lama masih hidup sampai Fase 5.
   - Whitelist tipe file, max image 10MB / dok 50MB, hapus folder cascade+auto-detach (Fase 2 detach hanya `mt_product.file_id`).
-  - Test: 5 pass (create/rename/move/reject-descendant/delete-cascade + assert `image_id` tak tersentuh). HTTP controller+auth test belum.
+  - Test: automated 5 pass (create/rename/move/reject-descendant/delete-cascade + assert `image_id` tak tersentuh). HTTP `file/update` (rename/move/replace) juga lolos live via UI Playwright. Sisa belum dites (risiko rendah): `remove`/detach + validasi tipe/size.
   - CATATAN: `phpunit.xml` sudah difix aktifin sqlite in-memory (sebelumnya test bakal hantam mysql asli).
-- **Fase 3 (frontend two-pane manager): KODE + build + TEST UI LIVE (Playwright) PASS, belum di-commit.**
+- **Fase 3 (frontend two-pane manager): SELESAI & di-commit (`25d2438`).** Kode + build + TEST UI LIVE (Playwright) PASS.
   - Rebuild `pages/admin/assets-file-manager/Index.vue` jadi two-pane; baru: `components/asset-manager/FolderTree.vue`, dialog `NamePromptDialog`/`MoveDialog`/`FileUploadDialog` + util singleton-nya.
-  - Scope diperkecil: picker berfolder + PDF picker product + 5 form entity DIGESER ke Fase 5 (transition-safety). Komponen lama dibiarkan.
-- **Next step:** commit Fase 3 (minta izin) → Fase 4 (migrasi data 680 file + mt_images_storage) ATAU Fase 5.
+  - Scope diperkecil: picker berfolder + PDF picker product + 5 form entity DIGESER ke Fase 5 (transition-safety). Komponen lama dibiarkan. Utang cleanup Fase 5: `assets-file-manager/Form.vue` + route create/detail jadi nganggur.
+- **Next step:** Fase 4 (migrasi data 680 file `public/images`+pdf + `mt_images_storage` → storage) ATAU Fase 5 (switch publik + repoint relasi + wiring form entity + buang sistem lama). Belum di-brainstorm detail.
+- **Temuan sampingan (di luar scope):** `AuthController@register` RUSAK (`...$user` spread model Eloquent, `AuthController.php:43`) — register API error.
 
 ## Larangan / Hati-hati
 

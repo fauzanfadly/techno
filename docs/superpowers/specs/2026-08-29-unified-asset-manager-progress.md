@@ -11,7 +11,7 @@
 |---|---|---|
 | 1 | Kunci data model (desain + migration) | 🟢 Selesai — migrate sukses, di-commit `4428d3f` |
 | 2 | Backend CRUD unified + folder | 🟢 Selesai — kode + FolderService test PASS, di-commit `7cbafa6` |
-| 3 | Frontend asset manager berfolder | 🟡 Kode + build vite + TEST UI LIVE (Playwright) PASS; belum di-commit |
+| 3 | Frontend asset manager berfolder | 🟢 Selesai — kode + build + UI live test PASS, di-commit `25d2438` |
 | 4 | Migrasi data (680 file + mt_images_storage) | ⚪ Belum |
 | 5 | Switch publik + buang sistem lama | ⚪ Belum |
 | 6 | Deploy prep + regen seeder | ⚪ Belum |
@@ -90,18 +90,13 @@ Catatan test: butuh viewport lebar (≥md) supaya nav drawer permanent (kalau se
 
 Utang teknis (cleanup Fase 5): `assets-file-manager/Form.vue` + route create/detail jadi tak terpakai; MoveDialog belum grey-out keturunan (backend yang cegah).
 
-## Perubahan Belum Di-commit (per 2026-08-30)
+## Commit History
 
-Fase 1 (`4428d3f`) & Fase 2 (`7cbafa6`) SUDAH di-commit. Yang belum (kode Fase 3 + doc):
-- `resources/js/pages/admin/assets-file-manager/Index.vue` (rebuild)
-- `resources/js/components/asset-manager/FolderTree.vue` (baru)
-- `resources/js/components/dialogs/NamePromptDialog.vue` + `utils/name_prompt_dialog.js` (baru)
-- `resources/js/components/dialogs/MoveDialog.vue` + `utils/move_dialog.js` (baru)
-- `resources/js/components/dialogs/FileUploadDialog.vue` + `utils/file_upload_dialog.js` (baru)
-- `docs/ASSET-MANAGER.md`, `docs/superpowers/specs/*design.md`, `*progress.md` (update)
+- Fase 1 → `4428d3f`
+- Fase 2 → `7cbafa6`
+- Fase 3 → `25d2438`
 
-Usulan commit message (belum dieksekusi, tunggu test browser):
-`feat: Phase 3 unified asset manager - two-pane folder file manager UI`
+(Update dokumentasi/doc setelah commit terakhir mungkin belum di-commit — commit terpisah jika perlu.)
 
 ## Catatan Antar-Sesi
 
