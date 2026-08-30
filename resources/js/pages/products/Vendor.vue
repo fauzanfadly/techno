@@ -109,10 +109,7 @@
                             <!-- Vendor Image -->
                             <div class="vendor-image-wrapper">
                                 <v-img
-                                    :src="`${rawStorage.vendorImg({
-                                        manufactureId: vendor.mt_manufacture_type_id || 0,
-                                        vendorId: vendor.id,
-                                    })}.png`"
+                                    :src="vendor.image ? getStorageFile(vendor.image.file_path) : ''"
                                     height="140"
                                     contain
                                     class="vendor-logo"
@@ -200,7 +197,7 @@ import LandingPageLayout from "@/layouts/LandingPageLayout.vue";
 import { onMounted, ref, watch } from "vue";
 import { Request } from "../../utils/request";
 import { useRouter } from "vue-router";
-import { getStorageFile, rawStorage } from "../../utils/storage";
+import { getStorageFile } from "../../utils/storage";
 import { useHead } from "@unhead/vue";
 
 const router = useRouter();

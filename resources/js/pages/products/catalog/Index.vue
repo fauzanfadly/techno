@@ -9,11 +9,8 @@
                         <v-row align="center" class="py-8">
                             <v-col md="4">
                                 <v-img
-                                    v-if="vendor"
-                                    :src="`${rawStorage.vendorImg({
-                                        manufactureId: vendor.mt_manufacture_type_id,
-                                        vendorId: vendor.id,
-                                    })}.png`"
+                                    v-if="vendor && vendor.image"
+                                    :src="getStorageFile(vendor.image.file_path)"
                                     max-width="180"
                                     max-height="60"
                                     contain
@@ -130,12 +127,7 @@
                                         <v-img
                                             height="160"
                                             cover
-                                            :src="`${rawStorage.seriesImg({
-                                                manufactureId: manufactureType.id,
-                                                vendorId: vendor.id,
-                                                categoryId: series.mt_product_category_id,
-                                                seriesId: series.id,
-                                            })}.jpg`"
+                                            :src="series.image ? getStorageFile(series.image.file_path) : ''"
                                             class="product-image"
                                         >
                                             <template #placeholder>
@@ -174,12 +166,7 @@
                                             color="primary"
                                             size="small"
                                             variant="flat"
-                                            :href="`${rawStorage.seriesPdf({
-                                                manufactureId: manufactureType.id,
-                                                vendorId: vendor.id,
-                                                categoryId: series.mt_product_category_id,
-                                                seriesId: series.id,
-                                            })}.pdf`"
+                                            :href="series.file ? getStorageFile(series.file.file_path) : ''"
                                             target="_blank"
                                             class="flex-grow-1"
                                         >
@@ -223,7 +210,7 @@ import LandingPageLayout from "@/layouts/LandingPageLayout.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { Request } from "../../../utils/request";
-import { rawStorage } from "../../../utils/storage";
+import { getStorageFile } from "../../../utils/storage";
 import { useHead } from "@unhead/vue";
 
 const router = useRouter();

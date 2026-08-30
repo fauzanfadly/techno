@@ -106,12 +106,12 @@
                                             <v-text-field
                                                 label="Image File"
                                                 v-model="image.name"
-                                                @click="() => openSelectImageDialog()"
-                                                @focus="() => openSelectImageDialog()"
+                                                @click="() => openFilePicker({ filter: 'image', onPick: onSelectImage })"
+                                                @focus="() => openFilePicker({ filter: 'image', onPick: onSelectImage })"
                                             />
-                                            <SelectFileImageDialog
-                                                @click:image="onSelectImage"
-                                            ></SelectFileImageDialog>
+                                            <FilePickerDialog
+                                                
+                                            ></FilePickerDialog>
                                         </v-col>
                                         <v-col cols="12">
                                             <v-textarea
@@ -150,8 +150,8 @@ import { useUserStore } from '../../../store/user';
 import { Request } from '../../../utils/request';
 import { getStorageFile } from '../../../utils/storage';
 import { openImageFullscreen } from '../../../utils/image_full_screen_dialog';
-import { openSelectImageDialog } from '../../../utils/select_file_image_dialog';
-import SelectFileImageDialog from '../../../components/dialogs/SelectFileImageDialog.vue';
+import { openFilePicker } from '../../../utils/file_picker_dialog';
+import FilePickerDialog from '../../../components/dialogs/FilePickerDialog.vue';
 import { fetchServices } from '../../../utils/fetch_services';
 import { collect } from '../../../utils/collection';
 
@@ -198,7 +198,7 @@ onMounted(async () => {
 const onSelectImage = (value) => {
     form.value.image_id = value.id;
     image.value.name = value.name;
-    image.value.path = value.image_path;
+    image.value.path = value.file_path;
 }
 
 const fetchManufactureTypes = async () => {

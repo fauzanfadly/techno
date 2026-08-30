@@ -36,10 +36,12 @@ Migrasi besar sistem gambar/file project **Techno** (Laravel 11 + Vue 3) menjadi
   - **User jalankan:** `php artisan migrate` → `php artisan assets:migrate-legacy --dry-run` → `php artisan assets:migrate-legacy`.
 - **Fase 4 (migrasi data): SUDAH DIJALANKAN user (2026-08-30).** Disk `storage/app/public/upload/files` terisi 1025 file + 112 folder (Assembling/Painting/Wielding/Assets Lama). `public/images` utuh (680). Command di-commit `6f8bd64`.
 - **Fase 5 (flip): SEDANG BERJALAN di branch `feature/asset-manager-phase-5`.** Atomic flip. Wiring rule: manufacture→`mt_images_storage` (images:1/2/3), vendor+series→structured.
-  - **5a backend SELESAI + test (16 pass):** migration `add_file_id_to_mt_product_series`, repoint relasi `image()` 5 model → `MtFilesStorage` + `file()` di series, command `assets:wire-entities`, `WireEntitiesToFilesTest`.
-  - Belum: 5b picker+form entity, 5c frontend publik, 5d buang sistem lama, test Playwright, eksekusi flip live, merge.
-  - ⚠️ **DB shared (nggak ikut branch).** Entity live BELUM di-wire (main masih jalan). Jangan run `assets:wire-entities` di live sampai frontend siap.
-- **Next step:** lanjut 5b (picker berfolder + 5 form entity) di branch.
+  - **5a backend SELESAI + test (16 pass):** migration `add_file_id_to_mt_product_series`, repoint relasi `image()` 5 model → `MtFilesStorage` + `file()` di series, command `assets:wire-entities`, `WireEntitiesToFilesTest`. Di-commit `d2ef97b`.
+  - **5b picker + form entity admin SELESAI (build lolos):** `utils/file_picker_dialog.js` + `components/dialogs/FilePickerDialog.vue` (picker berfolder), 5 form image-picker → FilePickerDialog + `image_path`→`file_path`. (PDF picker admin ditunda.)
+  - **5c frontend publik SELESAI (build lolos):** backend eager-load (`mt_vendor.image`, `series.file`) + validasi `image_id`→mt_files_storage; Vendor.vue/catalog/Products.vue `rawStorage.*` → `getStorageFile(entity.image/file.file_path)`.
+  - Belum: **5d** buang sistem lama (mt_images_storage, ImagesStorageController, assets-image-manager, rawStorage helper, ImagePicker/SelectFileImageDialog lama, Form.vue nganggur, route image/*), **eksekusi flip live** (`php artisan migrate` + `assets:wire-entities`), **test Playwright end-to-end**, merge.
+  - ⚠️ **DB shared (nggak ikut branch).** Entity live BELUM di-wire (main masih jalan). Flip live dijalankan SETELAH 5d, sebelum test Playwright.
+- **Next step:** 5d cleanup di branch, lalu eksekusi flip live + test Playwright + merge.
 - **Temuan sampingan (di luar scope):** `AuthController@register` RUSAK (`...$user` spread model Eloquent, `AuthController.php:43`) — register API error.
 
 ## Larangan / Hati-hati

@@ -40,7 +40,7 @@ class ProductSeriesController extends Controller
             'name' => 'required|string',
             'description' => 'nullable|string',
             'mt_product_category_id' => 'required|exists:mt_product_category,id',
-            'image_id' => 'nullable|exists:mt_images_storage,id',
+            'image_id' => 'nullable|exists:mt_files_storage,id',
         ]);
 
         if ($validator->fails()) {
@@ -89,7 +89,7 @@ class ProductSeriesController extends Controller
             'name' => 'required|string',
             'description' => 'nullable|string',
             'mt_product_category_id' => 'required|exists:mt_product_category,id',
-            'image_id' => 'nullable|exists:mt_images_storage,id',
+            'image_id' => 'nullable|exists:mt_files_storage,id',
         ]);
 
         if ($validator->fails()) {

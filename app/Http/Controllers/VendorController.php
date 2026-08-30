@@ -23,6 +23,7 @@ class VendorController extends Controller
         $data = $data->with([
                 'mt_manufacture_type.mt_vendor',
                 'mt_product_category.mt_product_series.image',
+                'mt_product_category.mt_product_series.file',
                 'mt_product_category.image',
                 'image',
             ]);
@@ -47,7 +48,7 @@ class VendorController extends Controller
             'name' => 'required|string',
             'description' => 'nullable|string',
             'mt_manufacture_type_id' => 'required|exists:mt_manufacture_type,id',
-            'image_id' => 'nullable|exists:mt_images_storage,id',
+            'image_id' => 'nullable|exists:mt_files_storage,id',
         ]);
 
         if ($validator->fails()) {
@@ -76,6 +77,7 @@ class VendorController extends Controller
             $data = MtVendor::with([
                     'mt_manufacture_type.mt_vendor',
                     'mt_product_category.mt_product_series.image',
+                    'mt_product_category.mt_product_series.file',
                     'mt_product_category.image',
                     'image',
                 ])
@@ -98,7 +100,7 @@ class VendorController extends Controller
             'name' => 'required|string',
             'description' => 'nullable|string',
             'mt_manufacture_type_id' => 'required|exists:mt_manufacture_type,id',
-            'image_id' => 'nullable|exists:mt_images_storage,id',
+            'image_id' => 'nullable|exists:mt_files_storage,id',
         ]);
 
         if ($validator->fails()) {

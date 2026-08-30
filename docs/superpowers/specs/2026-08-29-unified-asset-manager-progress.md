@@ -112,11 +112,20 @@ Keputusan wiring (data-grounded): manufacture → `mt_images_storage` (`images:1
 - [x] Command `app/Console/Commands/WireEntitiesToFiles.php` (`assets:wire-entities --dry-run`)
 - [x] `tests/Feature/WireEntitiesToFilesTest.php` (3 test)
 
+**5b Picker + form entity admin — SELESAI (image), build lolos:**
+- [x] `resources/js/utils/file_picker_dialog.js` + `components/dialogs/FilePickerDialog.vue` (picker berfolder: FolderTree + grid, filter image/pdf, emit pick)
+- [x] 5 form entity: image-picker ke-swap `SelectFileImageDialog` → `FilePickerDialog`, `openSelectImageDialog` → `openFilePicker({filter:'image'})`, `value.image_path` → `value.file_path`
+- [ ] (Ditunda) PDF picker admin di form series/product (`file_id`) — data pdf sudah ke-wire via `series:S:pdf`; publik cukup baca `series.file`. Nice-to-have.
+
+**5c Switch frontend publik — SELESAI (build lolos):**
+- [x] Backend eager-load: `ManufactureTypeController` +`mt_vendor.image`; `VendorController` +`mt_product_category.mt_product_series.file` (pdf). Validasi `image_id` `mt_images_storage`→`mt_files_storage` di 5 controller.
+- [x] `Vendor.vue`: `rawStorage.vendorImg` → `getStorageFile(vendor.image.file_path)`
+- [x] `catalog/Index.vue`: vendorImg→`vendor.image`, seriesImg→`series.image`, seriesPdf→`series.file` (semua `getStorageFile(...file_path)`)
+- [x] `LandingPage/Products.vue`: `type.image?.image_path` → `file_path`
+
 **Belum:**
-- [ ] 5b: picker berfolder baru + wiring 5 form entity admin ke mt_files_storage
-- [ ] 5c: switch frontend publik (Vendor.vue, catalog, landing Products.vue) dari `rawStorage.*` → DB `getStorageFile(entity.image.file_path)`
-- [ ] 5d: buang `mt_images_storage`+`ImagesStorageController`+`assets-image-manager`+`rawStorage`+ImagePicker/SelectFileImageDialog lama+Form.vue nganggur
-- [ ] Test full (unit + Playwright)
+- [ ] 5d: buang `mt_images_storage`+`ImagesStorageController`+`assets-image-manager`+`rawStorage` helper+ImagePicker/SelectFileImageDialog lama+Form.vue nganggur+route `image/*`
+- [ ] Test full (Playwright end-to-end setelah flip live)
 - [ ] **Eksekusi flip live** (URUT, di akhir): `php artisan migrate` (file_id) → `php artisan assets:wire-entities`. CATATAN: DB shared — begitu di-wire, main lama rusak sampai branch merge.
 - [ ] Merge branch + commit
 

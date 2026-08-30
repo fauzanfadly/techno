@@ -23,6 +23,7 @@ class ManufactureTypeController extends Controller
         $params = $this->request->all();
         $data = new MtManufactureType();
         $data = $data->with([
+            'mt_vendor.image',
             'mt_vendor.mt_product_category.mt_product_series',
             'mt_vendor.mt_product_category.image',
             'image',
@@ -42,7 +43,7 @@ class ManufactureTypeController extends Controller
         $validator = Validator::make($this->request->all(), [
             'name' => 'required|string',
             'description' => 'nullable|string',
-            'image_id' => 'nullable|exists:mt_images_storage,id',
+            'image_id' => 'nullable|exists:mt_files_storage,id',
         ]);
 
         if ($validator->fails()) {
@@ -68,6 +69,7 @@ class ManufactureTypeController extends Controller
     {
         try {
             $data = MtManufactureType::with([
+                    'mt_vendor.image',
                     'mt_vendor.mt_product_category.mt_product_series',
                     'image',
                 ])
@@ -83,6 +85,7 @@ class ManufactureTypeController extends Controller
     {
         try {
             $data = MtManufactureType::with([
+                    'mt_vendor.image',
                     'mt_vendor.mt_product_category.mt_product_series',
                     'image',
                 ])
@@ -106,7 +109,7 @@ class ManufactureTypeController extends Controller
             'id' => 'required|exists:mt_manufacture_type,id',
             'name' => 'required|string',
             'description' => 'nullable|string',
-            'image_id' => 'nullable|exists:mt_images_storage,id',
+            'image_id' => 'nullable|exists:mt_files_storage,id',
         ]);
 
         if ($validator->fails()) {
