@@ -75,11 +75,6 @@ const sidebarMenus = ref([
         pathName: "admin-manufacture-type-list",
     },
     {
-        title: "Images Manager",
-        icon: "mdi-folder-multiple-image",
-        pathName: "admin-assets-image-manager-list",
-    },
-    {
         title: "Files Manager",
         icon: "mdi-file-multiple",
         pathName: "admin-assets-file-manager-list",

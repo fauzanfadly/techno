@@ -13,7 +13,7 @@
 | 2 | Backend CRUD unified + folder | 🟢 Selesai — kode + FolderService test PASS, di-commit `7cbafa6` |
 | 3 | Frontend asset manager berfolder | 🟢 Selesai — kode + build + UI live test PASS, di-commit `25d2438` |
 | 4 | Migrasi data (680 file + mt_images_storage) | 🟡 Kode command + test PASS; user BELUM jalanin `migrate` + `assets:migrate-legacy` |
-| 5 | Switch publik + buang sistem lama | 🟡 Di branch `feature/asset-manager-phase-5`. Backend flip (schema+wiring+repoint relasi) SELESAI+test. Frontend (5b/5c) + cleanup (5d) belum |
+| 5 | Switch publik + buang sistem lama | 🟢 SELESAI + flip live + Playwright PASS (branch `feature/asset-manager-phase-5`). Sisa: commit 5d + merge (butuh izin) |
 | 6 | Deploy prep + regen seeder | ⚪ Belum |
 
 Legenda: ⚪ Belum · 🟡 Berjalan · 🟢 Selesai
@@ -123,9 +123,22 @@ Keputusan wiring (data-grounded): manufacture → `mt_images_storage` (`images:1
 - [x] `catalog/Index.vue`: vendorImg→`vendor.image`, seriesImg→`series.image`, seriesPdf→`series.file` (semua `getStorageFile(...file_path)`)
 - [x] `LandingPage/Products.vue`: `type.image?.image_path` → `file_path`
 
+**5d Buang sistem lama — SELESAI (build lolos, 16 test pass, route image/* hilang):**
+- [x] Hapus `ImagesStorageController`, `assets-image-manager/` (Index+Form), `assets-file-manager/Form.vue` (nganggur), `ImagePicker.vue`, `SelectFileImageDialog.vue`, `select_file_image_dialog.js`
+- [x] `routes/api.php`: buang route `image/*` + import
+- [x] `router/admin.js`: buang route+import image-manager & file-manager create/detail (keep list)
+- [x] `DashboardLayout.vue`: buang nav "Images Manager"
+- [x] `utils/storage.js`: buang semua helper `rawStorage.*`, keep `getStorageFile`
+- [x] KEEP (drop di Fase 6): `mt_images_storage` table+model, `MigrateLegacyAssets` command, kolom `source_ref` — masih dipakai command migrasi
+- Nol dangling reference (grep bersih)
+
+**Flip live + test — SELESAI (2026-09-01):**
+- [x] User jalankan `php artisan migrate` + `php artisan assets:wire-entities` (manufacture 3, vendor 13, series img 643, pdf 361). Entity live sekarang → mt_files_storage.
+- [x] **Test Playwright end-to-end PASS:** katalog publik MyTorq → gambar vendor + 194 series img + tombol PDF semua dari `/storage/upload/files/...` (DB); `anyOldRawStoragePath=false`. Admin form manufacture "Assembling" preview dari DB. Nav "Images Manager" hilang.
+
 **Belum:**
-- [ ] 5d: buang `mt_images_storage`+`ImagesStorageController`+`assets-image-manager`+`rawStorage` helper+ImagePicker/SelectFileImageDialog lama+Form.vue nganggur+route `image/*`
-- [ ] Test full (Playwright end-to-end setelah flip live)
+- [ ] Commit 5d + docs (branch, butuh izin user)
+- [ ] Merge branch `feature/asset-manager-phase-5` → main (butuh izin user)
 - [ ] **Eksekusi flip live** (URUT, di akhir): `php artisan migrate` (file_id) → `php artisan assets:wire-entities`. CATATAN: DB shared — begitu di-wire, main lama rusak sampai branch merge.
 - [ ] Merge branch + commit
 

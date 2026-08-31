@@ -39,9 +39,10 @@ Migrasi besar sistem gambar/file project **Techno** (Laravel 11 + Vue 3) menjadi
   - **5a backend SELESAI + test (16 pass):** migration `add_file_id_to_mt_product_series`, repoint relasi `image()` 5 model → `MtFilesStorage` + `file()` di series, command `assets:wire-entities`, `WireEntitiesToFilesTest`. Di-commit `d2ef97b`.
   - **5b picker + form entity admin SELESAI (build lolos):** `utils/file_picker_dialog.js` + `components/dialogs/FilePickerDialog.vue` (picker berfolder), 5 form image-picker → FilePickerDialog + `image_path`→`file_path`. (PDF picker admin ditunda.)
   - **5c frontend publik SELESAI (build lolos):** backend eager-load (`mt_vendor.image`, `series.file`) + validasi `image_id`→mt_files_storage; Vendor.vue/catalog/Products.vue `rawStorage.*` → `getStorageFile(entity.image/file.file_path)`.
-  - Belum: **5d** buang sistem lama (mt_images_storage, ImagesStorageController, assets-image-manager, rawStorage helper, ImagePicker/SelectFileImageDialog lama, Form.vue nganggur, route image/*), **eksekusi flip live** (`php artisan migrate` + `assets:wire-entities`), **test Playwright end-to-end**, merge.
-  - ⚠️ **DB shared (nggak ikut branch).** Entity live BELUM di-wire (main masih jalan). Flip live dijalankan SETELAH 5d, sebelum test Playwright.
-- **Next step:** 5d cleanup di branch, lalu eksekusi flip live + test Playwright + merge.
+  - **5d buang sistem lama SELESAI (build lolos, 16 test pass):** hapus ImagesStorageController, assets-image-manager, assets-file-manager/Form.vue, ImagePicker/SelectFileImageDialog+util, route image/*, nav "Images Manager", helper rawStorage. KEEP (drop Fase 6): mt_images_storage table+model, MigrateLegacyAssets command, kolom source_ref.
+  - **Flip live DIJALANKAN user + Playwright PASS (2026-09-01):** `migrate` + `assets:wire-entities` (manuf 3/vendor 13/series img 643/pdf 361). Katalog publik + admin form render dari `/storage/upload/files` (DB); `anyOldRawStoragePath=false`. Entity live SEKARANG → mt_files_storage (main kode lama nampilin salah — harus merge branch).
+  - Belum: commit 5d + docs (branch), merge branch → main.
+- **Next step:** commit 5d + merge `feature/asset-manager-phase-5` → main (butuh izin user). Lalu Fase 6 (gitignore storage + regen seeder + drop mt_images_storage/source_ref).
 - **Temuan sampingan (di luar scope):** `AuthController@register` RUSAK (`...$user` spread model Eloquent, `AuthController.php:43`) — register API error.
 
 ## Larangan / Hati-hati

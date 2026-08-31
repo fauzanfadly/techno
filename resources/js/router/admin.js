@@ -10,10 +10,7 @@ import VendorList from '@/pages/admin/vendor/Index.vue';
 import VendorForm from '@/pages/admin/vendor/Form.vue';
 import ManufactureTypeList from '@/pages/admin/manufacture-type/Index.vue';
 import ManufactureTypeForm from '@/pages/admin/manufacture-type/Form.vue';
-import AssetsImageManagerList from '@/pages/admin/assets-image-manager/Index.vue';
-import AssetsImageManagerForm from '@/pages/admin/assets-image-manager/Form.vue';
 import AssetsFileManagerList from '@/pages/admin/assets-file-manager/Index.vue';
-import AssetsFileManagerForm from '@/pages/admin/assets-file-manager/Form.vue';
 
 
 const routes = [
@@ -175,55 +172,11 @@ const routes = [
     // ---- MANUFACTURE TYPE ----
 
 
-    // ---- ASSETS IMAGE MANAGER ----
-    {
-        path: "/admin/assets-image-manager",
-        name: "admin-assets-image-manager-list",
-        component: AssetsImageManagerList,
-        meta: {
-            auth: true
-        }
-    },
-    {
-        path: "/admin/assets-image-manager/create",
-        name: "admin-assets-image-manager-create",
-        component: AssetsImageManagerForm,
-        meta: {
-            auth: true
-        }
-    },
-    {
-        path: "/admin/assets-image-manager/detail/:id",
-        name: "admin-assets-image-manager-detail",
-        component: AssetsImageManagerForm,
-        meta: {
-            auth: true
-        }
-    },
-    // ---- ASSETS IMAGE MANAGER ----
-
-
     // ---- ASSETS FILE MANAGER ----
     {
         path: "/admin/assets-file-manager",
         name: "admin-assets-file-manager-list",
         component: AssetsFileManagerList,
-        meta: {
-            auth: true
-        }
-    },
-    {
-        path: "/admin/assets-file-manager/create",
-        name: "admin-assets-file-manager-create",
-        component: AssetsFileManagerForm,
-        meta: {
-            auth: true
-        }
-    },
-    {
-        path: "/admin/assets-file-manager/detail/:id",
-        name: "admin-assets-file-manager-detail",
-        component: AssetsFileManagerForm,
         meta: {
             auth: true
         }
