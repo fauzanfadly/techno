@@ -40,7 +40,7 @@ class ProductCategoryController extends Controller
             'name' => 'required|string',
             'description' => 'nullable|string',
             'mt_vendor_id' => 'required|exists:mt_vendor,id',
-            'image_id' => 'nullable|exists:mt_images_storage,id',
+            'image_id' => 'nullable|exists:mt_files_storage,id',
         ]);
 
         if ($validator->fails()) {
@@ -89,7 +89,7 @@ class ProductCategoryController extends Controller
             'name' => 'required|string',
             'description' => 'nullable|string',
             'mt_vendor_id' => 'required|exists:mt_vendor,id',
-            'image_id' => 'nullable|exists:mt_images_storage,id',
+            'image_id' => 'nullable|exists:mt_files_storage,id',
         ]);
 
         if ($validator->fails()) {

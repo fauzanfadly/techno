@@ -39,7 +39,7 @@
                         <!-- Product Image -->
                         <div class="product-image-wrapper">
                             <v-img
-                                :src="getStorageFile(type.image?.image_path)"
+                                :src="getStorageFile(type.image?.file_path)"
                                 height="200"
                                 cover
                                 class="product-image"

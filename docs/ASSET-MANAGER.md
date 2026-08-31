@@ -34,7 +34,15 @@ Migrasi besar sistem gambar/file project **Techno** (Laravel 11 + Vue 3) menjadi
   - Baru: migration `add_source_ref_to_mt_files_storage`, command `app/Console/Commands/MigrateLegacyAssets.php` (`assets:migrate-legacy`, `--dry-run`), `tests/Feature/MigrateLegacyAssetsTest.php` (6 pass).
   - Populate-only additive: mirror hierarki (Manufacture/Vendor/Category, series flat di category) + `mt_images_storage` → folder "Assets Lama" + `source_ref` per file. TIDAK sentuh FK/relasi/frontend/public/images. Skip aset landing.
   - **User jalankan:** `php artisan migrate` → `php artisan assets:migrate-legacy --dry-run` → `php artisan assets:migrate-legacy`.
-- **Next step:** setelah user jalanin migrasi + commit Fase 4 → **Fase 5** (flip: wiring FK entity pakai `source_ref`, repoint relasi `image()`, tambah FK pdf series, switch frontend publik dari rawStorage ke DB, buang `mt_images_storage`/`assets-image-manager`/komponen lama).
+- **Fase 4 (migrasi data): SUDAH DIJALANKAN user (2026-08-30).** Disk `storage/app/public/upload/files` terisi 1025 file + 112 folder (Assembling/Painting/Wielding/Assets Lama). `public/images` utuh (680). Command di-commit `6f8bd64`.
+- **Fase 5 (flip): SEDANG BERJALAN di branch `feature/asset-manager-phase-5`.** Atomic flip. Wiring rule: manufacture→`mt_images_storage` (images:1/2/3), vendor+series→structured.
+  - **5a backend SELESAI + test (16 pass):** migration `add_file_id_to_mt_product_series`, repoint relasi `image()` 5 model → `MtFilesStorage` + `file()` di series, command `assets:wire-entities`, `WireEntitiesToFilesTest`. Di-commit `d2ef97b`.
+  - **5b picker + form entity admin SELESAI (build lolos):** `utils/file_picker_dialog.js` + `components/dialogs/FilePickerDialog.vue` (picker berfolder), 5 form image-picker → FilePickerDialog + `image_path`→`file_path`. (PDF picker admin ditunda.)
+  - **5c frontend publik SELESAI (build lolos):** backend eager-load (`mt_vendor.image`, `series.file`) + validasi `image_id`→mt_files_storage; Vendor.vue/catalog/Products.vue `rawStorage.*` → `getStorageFile(entity.image/file.file_path)`.
+  - **5d buang sistem lama SELESAI (build lolos, 16 test pass):** hapus ImagesStorageController, assets-image-manager, assets-file-manager/Form.vue, ImagePicker/SelectFileImageDialog+util, route image/*, nav "Images Manager", helper rawStorage. KEEP (drop Fase 6): mt_images_storage table+model, MigrateLegacyAssets command, kolom source_ref.
+  - **Flip live DIJALANKAN user + Playwright PASS (2026-09-01):** `migrate` + `assets:wire-entities` (manuf 3/vendor 13/series img 643/pdf 361). Katalog publik + admin form render dari `/storage/upload/files` (DB); `anyOldRawStoragePath=false`. Entity live SEKARANG → mt_files_storage (main kode lama nampilin salah — harus merge branch).
+  - Belum: commit 5d + docs (branch), merge branch → main.
+- **Next step:** commit 5d + merge `feature/asset-manager-phase-5` → main (butuh izin user). Lalu Fase 6 (gitignore storage + regen seeder + drop mt_images_storage/source_ref).
 - **Temuan sampingan (di luar scope):** `AuthController@register` RUSAK (`...$user` spread model Eloquent, `AuthController.php:43`) — register API error.
 
 ## Larangan / Hati-hati

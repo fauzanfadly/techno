@@ -25,6 +25,6 @@ class MtProductCategory extends Model
 
     public function image()
     {
-        return $this->belongsTo(MtImagesStorage::class, 'image_id', 'id');
+        return $this->belongsTo(MtFilesStorage::class, 'image_id', 'id');
     }
 }
