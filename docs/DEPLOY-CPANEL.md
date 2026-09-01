@@ -244,7 +244,7 @@ Semua lewat File Manager, `/home/techno`. **Selalu parkir yang aktif dulu, baru 
 
 ## 10. Known Issues / Catatan
 
-- **`AuthController@register` RUSAK** (`...$user` spread model, `app/Http/Controllers/AuthController.php:43`) → endpoint register API error. Di luar scope deploy; perbaiki terpisah jika register API dipakai.
+- ~~**`AuthController@register` RUSAK**~~ → **SUDAH DIPERBAIKI** di branch `deploy-cpanel` (spread `...$user` + `Auth::attempt` guard web salah → diganti `JWTAuth::fromUser`; ada `tests/Feature/AuthRegisterTest.php`).
 - **PDF picker admin** (form series/product, `file_id`) belum ada — data PDF sudah ter-wire, publik cukup baca `series.file`. Nice-to-have.
 - **Jangan hapus backup apa pun** (file `z-*` WP, `wordpress-bac...`, serta backup Laravel: tabel `mt_images_storage`, kolom `source_ref`, `public/images`, `public/pdf`) sampai produksi terbukti 100% aman. Lihat [ASSET-MANAGER.md](ASSET-MANAGER.md) Larangan.
 - **Cadangan (jika no-symlink bermasalah):** kalau karena suatu hal asset tidak ter-serve dari `public_html/storage`, alternatif idiomatik = symlink lewat **Cron Jobs** one-shot: `ln -sfn /home/techno/laravel_app/storage/app/public /home/techno/public_html/storage` (jalankan sekali saat Laravel aktif, lalu hapus cron). Butuh dukungan symlink host.

@@ -38,10 +38,12 @@ class AuthController extends Controller
             'password' => Hash::make($this->request->password)
         ]);
 
-        $token = Auth::attempt($this->request->only('email', 'password'));
+        $token = JWTAuth::fromUser($user);
         $data = [
-            ...$user,
-            'token' => $token
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'token' => $token,
         ];
 
         return response()->success($data, "User successfully registered", 201);

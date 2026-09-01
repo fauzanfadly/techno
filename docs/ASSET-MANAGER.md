@@ -37,7 +37,7 @@ Ringkas per fase (commit di `main`):
 1. **Deploy cPanel** — runbook lengkap di **[DEPLOY-CPANEL.md](DEPLOY-CPANEL.md)** (toggle 1 domain berdampingan WordPress, docroot terkunci, 100% GUI tanpa symlink/shell). Ganti rencana lama (`storage:link`) — asset dilayani via `PUBLIC_DISK_ROOT`. Branch kerja: `deploy-cpanel`.
 2. **Cleanup backup** — mini-task terpisah, HANYA setelah produksi terbukti aman (lihat Bagian 10.4).
 
-**Temuan sampingan (di luar scope):** `AuthController@register` RUSAK (`...$user` spread model, `AuthController.php:43`) — register API error. Opsional: PDF picker admin di form series/product (`file_id`).
+**Temuan sampingan:** ~~`AuthController@register` RUSAK (`...$user` spread model)~~ → **FIXED** di branch `deploy-cpanel` (spread + `Auth::attempt` guard web diganti `JWTAuth::fromUser`, +test `AuthRegisterTest`). Opsional sisa: PDF picker admin di form series/product (`file_id`).
 
 ## Larangan / Hati-hati
 
