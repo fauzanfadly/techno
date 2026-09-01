@@ -41,6 +41,7 @@ class ProductSeriesController extends Controller
             'description' => 'nullable|string',
             'mt_product_category_id' => 'required|exists:mt_product_category,id',
             'image_id' => 'nullable|exists:mt_files_storage,id',
+            'file_id' => 'nullable|exists:mt_files_storage,id',
         ]);
 
         if ($validator->fails()) {
@@ -52,6 +53,7 @@ class ProductSeriesController extends Controller
             'description',
             'mt_product_category_id',
             'image_id',
+            'file_id',
         ]);
 
         try {
@@ -69,6 +71,7 @@ class ProductSeriesController extends Controller
             $data = MtProductSeries::with([
                     'mt_product_category.mt_vendor.mt_manufacture_type',
                     'image',
+                    'file',
                 ])
                 ->findOrFail($id);
 
@@ -90,6 +93,7 @@ class ProductSeriesController extends Controller
             'description' => 'nullable|string',
             'mt_product_category_id' => 'required|exists:mt_product_category,id',
             'image_id' => 'nullable|exists:mt_files_storage,id',
+            'file_id' => 'nullable|exists:mt_files_storage,id',
         ]);
 
         if ($validator->fails()) {
@@ -101,6 +105,7 @@ class ProductSeriesController extends Controller
             'description',
             'mt_product_category_id',
             'image_id',
+            'file_id',
         ]);
 
         try {
