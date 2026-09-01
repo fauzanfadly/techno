@@ -34,7 +34,7 @@ Ringkas per fase (commit di `main`):
 **Verifikasi:** unit test **16 pass**; Playwright end-to-end (admin form + katalog publik) render dari `/storage/upload/files` (DB), `anyOldRawStoragePath=false`.
 
 **Sisa (user, non-code):**
-1. **Deploy cPanel** — upload kode + folder `storage/app/public/upload`; di server `php artisan storage:link` + `migrate`/seed. Checklist di spec Bagian 10.3.
+1. **Deploy cPanel** — runbook lengkap di **[DEPLOY-CPANEL.md](DEPLOY-CPANEL.md)** (toggle 1 domain berdampingan WordPress, docroot terkunci, 100% GUI tanpa symlink/shell). Ganti rencana lama (`storage:link`) — asset dilayani via `PUBLIC_DISK_ROOT`. Branch kerja: `deploy-cpanel`.
 2. **Cleanup backup** — mini-task terpisah, HANYA setelah produksi terbukti aman (lihat Bagian 10.4).
 
 **Temuan sampingan (di luar scope):** `AuthController@register` RUSAK (`...$user` spread model, `AuthController.php:43`) — register API error. Opsional: PDF picker admin di form series/product (`file_id`).
