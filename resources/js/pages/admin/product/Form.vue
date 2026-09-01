@@ -303,7 +303,7 @@ const fetchDetail = async (id) => {
             const _vendor = collect(optionValues.value.vendors).find('value', _vendorId);
             vendorField.value.$emit('update:modelValue', _vendor);
 
-            const _productCategory = collect(optionValues.value.vendors).find('value', _productCategoryId);
+            const _productCategory = collect(optionValues.value.productCategories).find('value', _productCategoryId);
             productCategoryField.value.$emit('update:modelValue', _productCategory);
 
             onSelectImage(_image);
