@@ -114,6 +114,27 @@
                                             ></FilePickerDialog>
                                         </v-col>
                                         <v-col cols="12">
+                                            <v-text-field
+                                                label="PDF File"
+                                                v-model="pdf.name"
+                                                readonly
+                                                placeholder="Pilih PDF (opsional)"
+                                                @click="() => openFilePicker({ filter: 'pdf', onPick: onSelectPdf })"
+                                                @focus="() => openFilePicker({ filter: 'pdf', onPick: onSelectPdf })"
+                                            >
+                                                <template #append-inner v-if="pdf.path">
+                                                    <v-btn
+                                                        icon
+                                                        variant="text"
+                                                        density="compact"
+                                                        :href="getStorageFile(pdf.path)"
+                                                        target="_blank"
+                                                        @click.stop
+                                                    ><v-icon>mdi-open-in-new</v-icon></v-btn>
+                                                </template>
+                                            </v-text-field>
+                                        </v-col>
+                                        <v-col cols="12">
                                             <v-textarea
                                                 label="Description"
                                                 v-model="form.description"
@@ -166,7 +187,7 @@ const form = ref({
     name: '',
     description: '',
     image_id: null,
-    pdf_id: null,
+    file_id: null,
     mt_manufacture_type_id: null,
     mt_vendor_id: null,
     mt_product_category_id: null,
@@ -183,6 +204,10 @@ const image = ref({
     name: null,
     path: null,
 });
+const pdf = ref({
+    name: null,
+    path: null,
+});
 
 
 onMounted(async () => {
@@ -196,9 +221,21 @@ onMounted(async () => {
 
 
 const onSelectImage = (value) => {
+    if (!value) {
+        return;
+    }
     form.value.image_id = value.id;
     image.value.name = value.name;
     image.value.path = value.file_path;
+}
+
+const onSelectPdf = (value) => {
+    if (!value) {
+        return;
+    }
+    form.value.file_id = value.id;
+    pdf.value.name = value.name;
+    pdf.value.path = value.file_path;
 }
 
 const fetchManufactureTypes = async () => {
@@ -270,6 +307,7 @@ const fetchDetail = async (id) => {
             productCategoryField.value.$emit('update:modelValue', _productCategory);
 
             onSelectImage(_image);
+            onSelectPdf(_file);
         });
 }
 
@@ -277,19 +315,6 @@ const submitForm = async () => {
     if (!valid.value) {
         return;
     }
-
-    const data = new FormData();
-    Object.keys(form.value).map(field => {
-        const value = form.value[field];
-
-        if (field === 'image_file' || field === 'pdf_file') {
-            if (!value) {
-                return null;
-            }
-        }
-
-        data.append(field, value);
-    });
 
     let url = "/api/product/create";
     let errorMessage = "Failed when creating product";
@@ -300,7 +325,7 @@ const submitForm = async () => {
 
     await Request.post({
         url,
-        data,
+        data: form.value,
         errorMessage,
         useLoading: true,
     })

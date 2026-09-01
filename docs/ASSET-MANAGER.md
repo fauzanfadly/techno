@@ -37,7 +37,7 @@ Ringkas per fase (commit di `main`):
 1. **Deploy cPanel** — runbook lengkap di **[DEPLOY-CPANEL.md](DEPLOY-CPANEL.md)** (toggle 1 domain berdampingan WordPress, docroot terkunci, 100% GUI tanpa symlink/shell). Ganti rencana lama (`storage:link`) — asset dilayani via `PUBLIC_DISK_ROOT`. Branch kerja: `deploy-cpanel`.
 2. **Cleanup backup** — mini-task terpisah, HANYA setelah produksi terbukti aman (lihat Bagian 10.4).
 
-**Temuan sampingan:** ~~`AuthController@register` RUSAK (`...$user` spread model)~~ → **FIXED** di branch `deploy-cpanel` (spread + `Auth::attempt` guard web diganti `JWTAuth::fromUser`, +test `AuthRegisterTest`). PDF picker admin: **series SELESAI** (branch `deploy-cpanel`, backend `file_id` di store/update/show + `FilePickerDialog filter:pdf` di form, +`ProductSeriesFileTest`). **Product ditunda** (kusut: `pdf_id` vs `file_id`, legacy upload di `ProductController`).
+**Temuan sampingan:** ~~`AuthController@register` RUSAK (`...$user` spread model)~~ → **FIXED** di branch `deploy-cpanel` (spread + `Auth::attempt` guard web diganti `JWTAuth::fromUser`, +test `AuthRegisterTest`). PDF picker admin **SELESAI series + product** (branch `deploy-cpanel`). Backend `file_id`+`image_id` di store/update/show (series & product); `FilePickerDialog filter:pdf` di dua form. Product dirapikan: rombak `ProductController` (buang legacy upload `image_file`/`pdf_file` + kolom phantom `image_path`/`pdf_file_path`), rename `pdf_id`→`file_id`, submit JSON. Verified: `ProductSeriesFileTest` (3) + Playwright end-to-end create+edit (image_id=140/file_id=735 persist & resolve).
 
 ## Larangan / Hati-hati
 

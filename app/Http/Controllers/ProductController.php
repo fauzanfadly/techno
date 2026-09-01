@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MtProduct;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -22,7 +20,11 @@ class ProductController extends Controller
     {
         $params = $this->request->all();
         $data = new MtProduct();
-        $data = $data->with('mt_product_series.mt_product_category.mt_vendor.mt_manufacture_type');
+        $data = $data->with([
+            'mt_product_series.mt_product_category.mt_vendor.mt_manufacture_type',
+            'image',
+            'file',
+        ]);
 
         if (!empty($params['page']) && !empty($params['items_per_page'])) {
             $data = $data->paginate($params['items_per_page'], '*', 'page', $params['page']);
@@ -39,8 +41,8 @@ class ProductController extends Controller
             'mt_product_series_id' => 'required|exists:mt_product_series,id',
             'name' => 'required|string',
             'description' => 'nullable|string',
-            'image_file' => 'nullable|file|mimes:jpg,jpeg,png',
-            'pdf_file' => 'nullable|file|mimes:pdf',
+            'image_id' => 'nullable|exists:mt_files_storage,id',
+            'file_id' => 'nullable|exists:mt_files_storage,id',
         ]);
 
         if ($validator->fails()) {
@@ -51,26 +53,9 @@ class ProductController extends Controller
             'mt_product_series_id',
             'name',
             'description',
+            'image_id',
+            'file_id',
         ]);
-
-        try {
-            // Proses upload image_file jika ada
-            if ($this->request->hasFile('image_file')) {
-                $image_file = $this->request->file('image_file');
-                $data['image_name'] = Carbon::now()->timestamp . '_' . $image_file->getClientOriginalName();
-                $data['image_path'] = $image_file->storeAs('images/mt_product', $data['image_name'], 'public');
-            }
-    
-            // Proses upload pdf_file jika ada
-            if ($this->request->hasFile('pdf_file')) {
-                $pdf_file = $this->request->file('pdf_file');
-                $data['pdf_file_name'] = Carbon::now()->timestamp . '_' . $pdf_file->getClientOriginalName();
-                $data['pdf_file_path'] = $pdf_file->storeAs('pdfs/mt_product', $data['pdf_file_name'], 'public');
-            }
-        } catch (\Exception $e) {
-            $message = $e->getMessage();
-            return response()->error("Failed when saving uploaded file to storage, $message");
-        }
 
         try {
             $create = MtProduct::create($data);
@@ -84,7 +69,13 @@ class ProductController extends Controller
     public function show($id)
     {
         try {
-            $data = MtProduct::with('mt_product_series.mt_product_category.mt_vendor.mt_manufacture_type')->findOrFail($id);
+            $data = MtProduct::with([
+                    'mt_product_series.mt_product_category.mt_vendor.mt_manufacture_type',
+                    'image',
+                    'file',
+                ])
+                ->findOrFail($id);
+
             return response()->success($data, "Product '$id' successfully fetched");
         } catch (\Exception $e) {
             return response()->error("Product with id '$id' not found");
@@ -102,49 +93,24 @@ class ProductController extends Controller
             'mt_product_series_id' => 'required|exists:mt_product_series,id',
             'name' => 'required|string',
             'description' => 'nullable|string',
-            'image_file' => 'nullable|file|mimes:jpg,jpeg,png',
-            'pdf_file' => 'nullable|file|mimes:pdf',
+            'image_id' => 'nullable|exists:mt_files_storage,id',
+            'file_id' => 'nullable|exists:mt_files_storage,id',
         ]);
 
         if ($validator->fails()) {
             return response()->error($validator->errors()->first());
         }
 
-
         $data = $this->request->only([
             'mt_product_series_id',
             'name',
             'description',
+            'image_id',
+            'file_id',
         ]);
 
         try {
             $update = MtProduct::findOrFail($id);
-
-            if ($this->request->hasFile('image_file')) {
-                if ($update->image_path) {
-                    Storage::disk('public')->delete($update->image_path);
-                }
-
-                $image_file = $this->request->file('image_file');
-                $data['image_name'] = Carbon::now()->timestamp . '_' . $image_file->getClientOriginalName();
-                $data['image_path'] = $image_file->storeAs('images/mt_product', $data['image_name'], 'public');
-            }
-
-            if ($this->request->hasFile('pdf_file')) {
-                if ($update->pdf_file_path) {
-                    Storage::disk('public')->delete($update->pdf_file_path);
-                }
-
-                $pdf_file = $this->request->file('pdf_file');
-                $data['pdf_file_name'] = Carbon::now()->timestamp . '_' . $pdf_file->getClientOriginalName();
-                $data['pdf_file_path'] = $pdf_file->storeAs('pdfs/mt_product', $data['pdf_file_name'], 'public');
-            }
-        } catch (\Exception $e) {
-            $message = $e->getMessage();
-            return response()->error("Failed when saving uploaded file to storage, $message");
-        }
-
-        try {
             $update->update($data);
 
             return response()->success($update, "Product '$id' successfully updated");
