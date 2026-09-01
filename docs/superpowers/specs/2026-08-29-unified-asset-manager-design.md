@@ -311,6 +311,43 @@ Migration `2026_08_30_000001_add_source_ref_to_mt_files_storage_table` — kolom
 3. `php artisan assets:migrate-legacy` (eksekusi)
 4. Verifikasi: `storage/app/public/upload/files/...` terisi + row `mt_files_storage` bertambah. `public/images` HARUS tetap utuh.
 
+## 10. Fase 6 — Deploy Prep + Regen Seeder (2026-09-01)
+
+### 10.1 Keputusan
+- **Track file storage di git** (bukan gitignore). Ternyata `storage/app/public/upload` SUDAH trackable (`storage/app/.gitignore` isinya `# *` yang di-comment) → nol edit `.gitignore`, tinggal `git add`.
+- **Keep `mt_images_storage`** sebagai backup (table+model+`source_ref`+command `MigrateLegacyAssets`+test). Drop = mini-task terpisah setelah deploy sukses.
+- **Regen seeder clean** via iseed.
+
+### 10.2 Regen Seeder (iseed)
+Command (user jalankan): `php artisan iseed mt_folders,mt_files_storage,mt_images_storage,mt_manufacture_type,mt_vendor,mt_product_category,mt_product_series,mt_product --force --chunksize=500`.
+Hasil: MtFolders 111, MtFilesStorage 1025, series 643, category 94, vendor 13, manufacture 3, product 0, images 7 (backup).
+
+`DatabaseSeeder` ditulis ulang clean:
+- Urutan: folders → files → images → manufacture → vendor → category → series → product → users (folder_id sebelum files; files sebelum entity FK image_id/file_id).
+- **Dihapus** (seeder ephemeral, data runtime tak boleh di-seed): CacheTableSeeder, CacheLocksTableSeeder, JobsTableSeeder, JobBatchesTableSeeder, FailedJobsTableSeeder, MigrationsTableSeeder, SessionsTableSeeder, PasswordResetTokensTableSeeder.
+- `UsersTableSeeder` di-keep apa adanya (tidak diregen).
+- Verifikasi: `migrate:fresh --seed` di sqlite (test sekali-pakai) PASS — 111 folder/1025 file/643 series + FK wiring ter-seed. Full suite 16 pass.
+
+### 10.3 Deploy cPanel (checklist)
+1. Upload kode (git) + folder `storage/app/public/upload` (tracked di git, atau zip+upload via file manager).
+2. Di server: `php artisan storage:link` (symlink `public/storage` → `storage/app/public`) supaya file ke-serve di `/storage/upload/files/...`.
+3. DB: `php artisan migrate` + (opsional) `php artisan db:seed` kalau fresh; kalau pakai SQL dump, seeder skip.
+4. `php artisan config:cache` + `npm run build` (asset).
+
+### 10.4 Yang masih ditunda (post-deploy)
+
+⚠️ **JANGAN clean/hapus backup APAPUN sampai deploy produksi terverifikasi 100% aman** (keputusan user 2026-09-01). Yang termasuk backup dan HARUS dipertahankan sampai produksi aman:
+- Table `mt_images_storage` + model `MtImagesStorage`
+- Kolom `source_ref` di `mt_files_storage`
+- Command `MigrateLegacyAssets` (`assets:migrate-legacy`) + `MigrateLegacyAssetsTest`
+- **File asli `public/images` (680) + `public/pdf` (365)** — TIDAK dihapus (migrasi hanya copy). Ini sumber untuk re-run migrasi kalau perlu.
+
+Rollback path kalau produksi bermasalah: re-run `assets:migrate-legacy` dari `public/`, atau balikin relasi `image()` ke `MtImagesStorage`.
+
+Setelah produksi aman (mini-task terpisah): drop `mt_images_storage`+`source_ref`+command+test, hapus `public/images`+`public/pdf`.
+
+Lain-lain (opsional): PDF picker admin di form series/product (`file_id`); bug `AuthController@register` (`...$user` spread model, line 43, di luar scope).
+
 ### 9.7 Utang / Catatan Fase 5
 
 - Series butuh FK untuk PDF (`mt_product_series` cuma punya `image_id`) — tambah kolom di Fase 5 saat wiring.

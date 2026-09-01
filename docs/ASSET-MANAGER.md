@@ -42,7 +42,12 @@ Migrasi besar sistem gambar/file project **Techno** (Laravel 11 + Vue 3) menjadi
   - **5d buang sistem lama SELESAI (build lolos, 16 test pass):** hapus ImagesStorageController, assets-image-manager, assets-file-manager/Form.vue, ImagePicker/SelectFileImageDialog+util, route image/*, nav "Images Manager", helper rawStorage. KEEP (drop Fase 6): mt_images_storage table+model, MigrateLegacyAssets command, kolom source_ref.
   - **Flip live DIJALANKAN user + Playwright PASS (2026-09-01):** `migrate` + `assets:wire-entities` (manuf 3/vendor 13/series img 643/pdf 361). Katalog publik + admin form render dari `/storage/upload/files` (DB); `anyOldRawStoragePath=false`. Entity live SEKARANG → mt_files_storage (main kode lama nampilin salah — harus merge branch).
   - Belum: commit 5d + docs (branch), merge branch → main.
-- **Next step:** commit 5d + merge `feature/asset-manager-phase-5` → main (butuh izin user). Lalu Fase 6 (gitignore storage + regen seeder + drop mt_images_storage/source_ref).
+- **Fase 5 MERGED ke main (`8840c9c`).**
+- **Fase 6 (deploy prep + seeder) BERJALAN (2026-09-01):**
+  - Seeder di-regen clean via iseed (MtFolders 111, MtFilesStorage 1025, series 643, dst); `DatabaseSeeder` ditulis ulang (urutan folders→files→entity→users; seeder ephemeral cache/sessions/jobs/migrations dihapus). Verified `migrate:fresh --seed` di sqlite. Full suite 16 pass.
+  - `.gitignore` TIDAK diubah — `storage/app/public/upload` sudah trackable.
+  - `mt_images_storage` di-KEEP sebagai backup (drop post-deploy).
+- **Next step (user):** commit file `storage/app/public/upload` (tracked) + seeder baru; deploy cPanel → `php artisan storage:link`. Detail di spec Bagian 10.3. Post-deploy opsional: drop mt_images_storage/source_ref/command.
 - **Temuan sampingan (di luar scope):** `AuthController@register` RUSAK (`...$user` spread model Eloquent, `AuthController.php:43`) — register API error.
 
 ## Larangan / Hati-hati

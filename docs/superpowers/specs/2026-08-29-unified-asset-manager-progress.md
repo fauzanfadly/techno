@@ -14,7 +14,7 @@
 | 3 | Frontend asset manager berfolder | 🟢 Selesai — kode + build + UI live test PASS, di-commit `25d2438` |
 | 4 | Migrasi data (680 file + mt_images_storage) | 🟡 Kode command + test PASS; user BELUM jalanin `migrate` + `assets:migrate-legacy` |
 | 5 | Switch publik + buang sistem lama | 🟢 SELESAI — flip live + Playwright PASS, merged ke main (`8840c9c`) |
-| 6 | Deploy prep + regen seeder | ⚪ Belum |
+| 6 | Deploy prep + regen seeder | 🟡 Seeder regen clean + DatabaseSeeder rapi + verified (sqlite). Sisa: user commit file storage+seeder, `storage:link` di cPanel |
 
 Legenda: ⚪ Belum · 🟡 Berjalan · 🟢 Selesai
 
