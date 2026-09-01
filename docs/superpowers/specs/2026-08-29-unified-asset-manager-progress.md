@@ -2,8 +2,8 @@
 
 - **Spec:** [2026-08-29-unified-asset-manager-design.md](2026-08-29-unified-asset-manager-design.md)
 - **Mulai:** 2026-08-29
-- **Update terakhir:** 2026-08-30
-- **Resume:** anchor = `docs/ASSET-MANAGER.md`. Katakan "baca `docs/ASSET-MANAGER.md`" → dari situ baca spec (Bagian 0 = resume, Bagian 6 = peta kode, Bagian 7 = Fase 2), tracker ini, dan memory `asset-manager-migration.md`.
+- **Update terakhir:** 2026-09-01
+- **Resume:** anchor = `docs/ASSET-MANAGER.md`. Katakan "baca `docs/ASSET-MANAGER.md`" → dari situ baca spec (Bagian 0 = resume, Bagian 6 = peta kode, Bagian 7/8/9/10 = desain Fase 2/3/4/6, Bagian 10.4 = backup jangan dihapus), tracker ini, dan memory `asset-manager-migration.md`.
 
 ## Status Fase
 
@@ -12,9 +12,9 @@
 | 1 | Kunci data model (desain + migration) | 🟢 Selesai — migrate sukses, di-commit `4428d3f` |
 | 2 | Backend CRUD unified + folder | 🟢 Selesai — kode + FolderService test PASS, di-commit `7cbafa6` |
 | 3 | Frontend asset manager berfolder | 🟢 Selesai — kode + build + UI live test PASS, di-commit `25d2438` |
-| 4 | Migrasi data (680 file + mt_images_storage) | 🟡 Kode command + test PASS; user BELUM jalanin `migrate` + `assets:migrate-legacy` |
+| 4 | Migrasi data (680 file + mt_images_storage) | 🟢 Selesai — command + test PASS, dijalankan user (1025 file di storage), di-commit `6f8bd64` |
 | 5 | Switch publik + buang sistem lama | 🟢 SELESAI — flip live + Playwright PASS, merged ke main (`8840c9c`) |
-| 6 | Deploy prep + regen seeder | 🟡 Seeder regen clean + DatabaseSeeder rapi + verified (sqlite). Sisa: user commit file storage+seeder, `storage:link` di cPanel |
+| 6 | Deploy prep + regen seeder | 🟡 Seeder regen clean + DatabaseSeeder rapi + verified, di-commit `706c908`. Sisa: DEPLOY cPanel (`storage:link`) + cleanup backup post-produksi |
 
 Legenda: ⚪ Belum · 🟡 Berjalan · 🟢 Selesai
 
@@ -143,13 +143,16 @@ Keputusan wiring (data-grounded): manufacture → `mt_images_storage` (`images:1
 
 ⚠️ DB tidak ikut branch. Jangan jalankan `assets:wire-entities` di live sampai frontend siap.
 
-## Commit History
+## Commit History (di `main`)
 
 - Fase 1 → `4428d3f`
 - Fase 2 → `7cbafa6`
 - Fase 3 → `25d2438`
+- Fase 4 (command migrasi) → `6f8bd64`
+- Fase 5 (branch `feature/asset-manager-phase-5`): `d2ef97b` (5a), `23c9f67` (5b+5c), `2724690` (5d) → merge `8840c9c` + docs `f089bd8`
+- Fase 6 (seeder regen + docs) → `706c908`
 
-(Update dokumentasi/doc setelah commit terakhir mungkin belum di-commit — commit terpisah jika perlu.)
+(Doc terbaru sesi ini mungkin belum di-commit — commit terpisah jika perlu.)
 
 ## Catatan Antar-Sesi
 

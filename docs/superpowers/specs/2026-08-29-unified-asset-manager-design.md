@@ -17,7 +17,7 @@ Saat itu terjadi, lakukan urutan ini sebelum bertindak:
 4. **Baca Bagian 6 (Peta Kode)** di file ini — semua lokasi `file:line` yang relevan. Pakai ini supaya TIDAK perlu explore codebase dari nol.
 5. Lihat "Langkah Berikutnya" di bawah, konfirmasi ke user, baru kerja.
 
-**Langkah berikutnya saat ini (2026-08-30):** Fase 1 selesai & di-commit (`4428d3f`). Fase 2 desain disetujui (lihat Bagian 7), implementasi backend berjalan. Setelah kode Fase 2 jadi: user jalankan test manual endpoint, lalu lanjut Fase 3 (frontend). Jangan commit/push tanpa izin.
+**Status ringkas (2026-09-01):** Fase 1–6 SELESAI & di-`main` (Fase1 `4428d3f`, 2 `7cbafa6`, 3 `25d2438`, 4 `6f8bd64`, 5 merge `8840c9c`, 6 `706c908`). Sisa cuma DEPLOY cPanel (Bagian 10.3) + cleanup backup post-produksi (Bagian 10.4 — JANGAN hapus backup sampai produksi aman). **Sumber kebenaran status terkini = progress tracker + anchor `docs/ASSET-MANAGER.md`.** Jangan commit/push tanpa izin.
 
 ## 1. Latar Belakang & Masalah
 
