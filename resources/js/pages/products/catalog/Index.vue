@@ -14,7 +14,6 @@
                                     max-width="180"
                                     max-height="60"
                                     contain
-                                    class="vendor-logo"
                                 >
                                 </v-img>
                             </v-col>
@@ -354,10 +353,6 @@ watch(
     position: absolute;
     inset: 0;
     background: radial-gradient(circle at top right, rgba(21, 101, 192, 0.2), transparent 50%);
-}
-
-.vendor-logo {
-    filter: brightness(0) invert(1);
 }
 
 .eyebrow {

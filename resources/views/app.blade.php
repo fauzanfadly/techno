@@ -25,7 +25,9 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css" />
 
         <link rel="stylesheet" href="/build/{{ $manifest['resources/css/app.css']['file'] }}">
-        <link rel="stylesheet" href="/build/{{ $manifest['resources/scss/variables.scss']['file'] }}">
+        @foreach ($manifest['resources/js/app.js']['css'] ?? [] as $cssFile)
+            <link rel="stylesheet" href="/build/{{ $cssFile }}">
+        @endforeach
         <script type="module" src="/build/{{ $manifest['resources/js/app.js']['file'] }}"></script>
     @else
         @vite([
