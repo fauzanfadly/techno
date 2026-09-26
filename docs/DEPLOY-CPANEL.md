@@ -268,3 +268,23 @@ Semua lewat File Manager, `/home/techno`. **Selalu parkir yang aktif dulu, baru 
 - [ ] MultiPHP → PHP 8.2
 - [ ] Toggle: rename `public_html`→`wp_app`, `laravel_public`→`public_html`
 - [ ] Verifikasi landing + asset 200 + admin login + katalog
+
+---
+
+## 12. Update Rutin Setelah Live
+
+Untuk perubahan kode berikutnya tidak perlu mengulang seluruh runbook. Jalankan dari root project:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File deploy\build-update.ps1 -Target public,app
+```
+
+Script [deploy/build-update.ps1](../deploy/build-update.ps1) menjalankan `npm run build`, lalu membuat bundel kecil di `..\techno-deploy-zips\update-<waktu>\`:
+
+| Target | File | Upload ke `/home/techno/...` |
+|---|---|---|
+| `public` | `update_public.zip` | `public_html` (Extract, timpa `build/`) |
+| `app` | `update_app.zip` | `laravel_app` (Extract, timpa file lama) |
+| `vendor` | `vendor.zip` | `laravel_app` (hapus `vendor` lama dulu, lalu Extract) |
+
+Bundel tidak pernah berisi `.env`, `storage/`, `public/index.php`, atau `public/.htaccess`. Migration baru tetap dijalankan manual sebagai SQL di phpMyAdmin. Di Claude Code, skill lokal `deploy-update` (`.claude/skills/deploy-update/SKILL.md`) menjalankan alur ini dan memilih target dari perubahan git.
