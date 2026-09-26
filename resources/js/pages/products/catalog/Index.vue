@@ -9,8 +9,8 @@
                         <v-row align="center" class="py-8">
                             <v-col md="4">
                                 <v-img
-                                    v-if="vendor && vendor.image"
-                                    :src="getStorageFile(vendor.image.file_path)"
+                                    v-if="scopedVendor && scopedVendor.image"
+                                    :src="getStorageFile(scopedVendor.image.file_path)"
                                     max-width="180"
                                     max-height="60"
                                     contain
@@ -19,9 +19,9 @@
                             </v-col>
                             <v-col md="8">
                                 <span class="eyebrow">Katalog Produk</span>
-                                <h1 class="header-title">{{ vendor?.name || 'Catalog' }}</h1>
+                                <h1 class="header-title">{{ heroTitle }}</h1>
                                 <p class="header-desc">
-                                    {{ getCategoryByParam ? getCategoryByParam.name : 'Semua Kategori' }}
+                                    {{ selectedCategory ? selectedCategory.name : 'Semua Kategori' }}
                                 </p>
                             </v-col>
                         </v-row>
@@ -34,24 +34,54 @@
         <section class="content-section py-12">
             <v-container>
                 <v-row>
-                    <!-- Sidebar: Vendor Selector & Categories -->
+                    <!-- Sidebar: Manufacture, Vendor, Search & Categories -->
                     <v-col cols="12" md="3">
-                        <!-- Vendor Selector -->
+                        <!-- Filters: Manufacture, Vendor, Search -->
                         <v-card class="card-elevated mb-6 pa-4">
-                            <h3 class="sidebar-title mb-4">Pilih Distributor</h3>
-                            <v-autocomplete
-                                v-model="selectVendor"
-                                density="compact"
-                                variant="outlined"
-                                label="Distributor"
-                                :items="manufactureType.mt_vendor || []"
-                                item-title="name"
-                                item-value="id"
-                                return-object
-                                hide-details=""
-                                color="primary"
-                                @update:modelValue="changeVendor"
-                            />
+                            <div class="filter-header d-flex align-center mb-4">
+                                <v-icon size="20" color="primary" class="mr-2">mdi-filter-variant</v-icon>
+                                <h3 class="sidebar-title">Filter Produk</h3>
+                            </div>
+
+                            <div class="filter-fields d-flex flex-column">
+                                <v-select
+                                    :model-value="selectedTypeValue"
+                                    density="compact"
+                                    variant="outlined"
+                                    label="Manufaktur"
+                                    prepend-inner-icon="mdi-factory"
+                                    :items="manufactureOptions"
+                                    item-title="name"
+                                    item-value="value"
+                                    hide-details
+                                    color="primary"
+                                    @update:modelValue="changeManufacture"
+                                />
+                                <v-autocomplete
+                                    :model-value="selectedVendorValue"
+                                    density="compact"
+                                    variant="outlined"
+                                    label="Distributor"
+                                    prepend-inner-icon="mdi-domain"
+                                    :items="vendorOptions"
+                                    item-title="name"
+                                    item-value="id"
+                                    hide-details
+                                    color="primary"
+                                    @update:modelValue="changeVendor"
+                                />
+                                <v-text-field
+                                    v-model="search"
+                                    density="compact"
+                                    variant="outlined"
+                                    label="Cari series"
+                                    prepend-inner-icon="mdi-magnify"
+                                    clearable
+                                    hide-details
+                                    color="primary"
+                                    @update:modelValue="syncSearchQuery"
+                                />
+                            </div>
                         </v-card>
 
                         <!-- Categories -->
@@ -59,16 +89,16 @@
                             <h3 class="sidebar-title mb-4">Kategori</h3>
                             <v-list density="compact" class="category-list">
                                 <v-list-item
-                                    v-for="(category, index) in productCategory"
-                                    :key="index"
-                                    :value="category.id"
-                                    :active="(paramCategoryId || 'All') === category.id"
-                                    @click="setCategoryParam(category.id)"
+                                    v-for="category in categoryOptions"
+                                    :key="category.key"
+                                    :value="category.key"
+                                    :active="activeCategoryKey === category.key"
+                                    @click="setCategoryParam(category.key)"
                                     class="category-item mb-2"
                                     rounded="lg"
                                 >
                                     <template #prepend>
-                                        <v-icon size="20" :color="(paramCategoryId || 'All') === category.id ? 'primary' : 'grey'">
+                                        <v-icon size="20" :color="activeCategoryKey === category.key ? 'primary' : 'grey'">
                                             mdi-folder-outline
                                         </v-icon>
                                     </template>
@@ -94,10 +124,10 @@
                         <!-- Products Header -->
                         <div class="products-header mb-6">
                             <h2 class="products-title">
-                                {{ getCategoryByParam ? getCategoryByParam.name : 'Semua Produk' }}
+                                {{ selectedCategory ? selectedCategory.name : 'Semua Produk' }}
                             </h2>
                             <p class="products-count text-grey">
-                                {{ getProductSeries.length }} produk ditemukan
+                                Menampilkan {{ visibleSeries.length }} dari {{ filteredSeries.length }} produk
                             </p>
                         </div>
 
@@ -109,92 +139,112 @@
                         </v-row>
 
                         <!-- Products Grid -->
-                        <v-row v-else-if="getProductSeries.length > 0">
-                            <v-col
-                                v-for="(series, index) in getProductSeries"
-                                :key="index"
-                                cols="6"
-                                md="3"
-                            >
-                                <v-card
-                                    class="product-card card-elevated"
-                                    :data-aos="'fade-up'"
-                                    :data-aos-delay="(index % 4) * 50"
+                        <template v-else-if="filteredSeries.length > 0">
+                            <v-row>
+                                <v-col
+                                    v-for="(series, index) in visibleSeries"
+                                    :key="series.id"
+                                    cols="6"
+                                    md="3"
                                 >
-                                    <!-- Product Image -->
-                                    <div class="product-image-wrapper">
-                                        <v-img
-                                            height="160"
-                                            cover
-                                            :src="series.image ? getStorageFile(series.image.file_path) : ''"
-                                            class="product-image"
-                                        >
-                                            <template #placeholder>
-                                                <div class="d-flex align-center justify-center fill-height bg-grey-lighten-2">
-                                                    <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                                                </div>
-                                            </template>
-                                            <template #error>
-                                                <div class="d-flex align-center justify-center fill-height">
-                                                    <v-icon size="64" color="grey-lighten-1">mdi-image-off-outline</v-icon>
-                                                </div>
-                                            </template>
-                                        </v-img>
+                                    <v-card
+                                        class="product-card card-elevated"
+                                        :data-aos="'fade-up'"
+                                        :data-aos-delay="(index % 4) * 50"
+                                    >
+                                        <!-- Product Image -->
+                                        <div class="product-image-wrapper">
+                                            <v-img
+                                                height="160"
+                                                cover
+                                                :src="series.image ? getStorageFile(series.image.file_path) : ''"
+                                                class="product-image"
+                                            >
+                                                <template #placeholder>
+                                                    <div class="d-flex align-center justify-center fill-height bg-grey-lighten-2">
+                                                        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                                                    </div>
+                                                </template>
+                                                <template #error>
+                                                    <div class="d-flex align-center justify-center fill-height">
+                                                        <v-icon size="64" color="grey-lighten-1">mdi-image-off-outline</v-icon>
+                                                    </div>
+                                                </template>
+                                            </v-img>
 
-                                        <!-- PDF Badge -->
-                                        <v-chip
-                                            v-if="series.no_pdf"
-                                            class="no-pdf-badge"
-                                            color="error"
-                                            size="small"
-                                        >
-                                            <v-icon start size="12">mdi-file-document-remove</v-icon>
-                                            Katalog Tidak Tersedia
-                                        </v-chip>
-                                    </div>
+                                            <!-- PDF Badge -->
+                                            <v-chip
+                                                v-if="series.no_pdf"
+                                                class="no-pdf-badge"
+                                                color="error"
+                                                size="small"
+                                            >
+                                                <v-icon start size="12">mdi-file-document-remove</v-icon>
+                                                Katalog Tidak Tersedia
+                                            </v-chip>
+                                        </div>
 
-                                    <!-- Product Info -->
-                                    <v-card-text class="pa-3">
-                                        <h4 class="product-name">{{ series.name }}</h4>
-                                    </v-card-text>
+                                        <!-- Product Info -->
+                                        <v-card-text class="pa-3">
+                                            <h4 class="product-name">{{ series.name }}</h4>
+                                            <p v-if="!scopedVendor" class="vendor-label text-caption text-grey mt-1 mb-0">
+                                                {{ series.vendor_name }}
+                                            </p>
+                                        </v-card-text>
 
-                                    <!-- Product Actions -->
-                                    <v-card-actions class="px-3 pb-3">
-                                        <v-btn
-                                            v-if="!series.no_pdf"
-                                            color="primary"
-                                            size="small"
-                                            variant="flat"
-                                            :href="series.file ? getStorageFile(series.file.file_path) : ''"
-                                            target="_blank"
-                                            class="flex-grow-1"
-                                        >
-                                            <v-icon start size="16">mdi-file-pdf-box</v-icon>
-                                            Lihat PDF
-                                        </v-btn>
-                                        <v-btn
-                                            v-else
-                                            color="info"
-                                            size="small"
-                                            variant="outlined"
-                                            to="/contact"
-                                            target="_blank"
-                                            class="flex-grow-1"
-                                        >
-                                            <v-icon start size="16">mdi-file-document-remove</v-icon>
-                                            Hubungi Kami
-                                        </v-btn>
-                                    </v-card-actions>
-                                </v-card>
-                            </v-col>
-                        </v-row>
+                                        <!-- Product Actions -->
+                                        <v-card-actions class="px-3 pb-3">
+                                            <v-btn
+                                                v-if="!series.no_pdf"
+                                                color="primary"
+                                                size="small"
+                                                variant="flat"
+                                                :href="series.file ? getStorageFile(series.file.file_path) : ''"
+                                                target="_blank"
+                                                class="flex-grow-1"
+                                            >
+                                                <v-icon start size="16">mdi-file-pdf-box</v-icon>
+                                                Lihat PDF
+                                            </v-btn>
+                                            <v-btn
+                                                v-else
+                                                color="info"
+                                                size="small"
+                                                variant="outlined"
+                                                to="/contact"
+                                                target="_blank"
+                                                class="flex-grow-1"
+                                            >
+                                                <v-icon start size="16">mdi-file-document-remove</v-icon>
+                                                Hubungi Kami
+                                            </v-btn>
+                                        </v-card-actions>
+                                    </v-card>
+                                </v-col>
+                            </v-row>
+
+                            <!-- Infinite scroll sentinel -->
+                            <div v-if="hasMore" ref="sentinel" class="scroll-sentinel d-flex justify-center py-8">
+                                <v-progress-circular indeterminate color="primary" size="32"></v-progress-circular>
+                            </div>
+                        </template>
 
                         <!-- Empty State -->
                         <v-row v-else>
                             <v-col cols="12" class="text-center py-16">
                                 <v-icon size="80" color="grey-lighten-1" class="mb-4">mdi-package-variant</v-icon>
-                                <h3 class="text-h5 text-grey mb-2">Tidak Ada Produk</h3>
-                                <p class="text-body-2 text-grey">Silakan pilih kategori lain.</p>
+                                <template v-if="searchTerm">
+                                    <h3 class="text-h5 text-grey mb-2">Tidak ada hasil untuk "{{ searchTerm }}"</h3>
+                                    <p class="text-body-2 text-grey mb-4">Coba kata kunci lain atau reset pencarian.</p>
+                                    <v-btn color="primary" variant="outlined" @click="resetSearch">
+                                        <v-icon start size="16">mdi-close</v-icon>
+                                        Reset Pencarian
+                                    </v-btn>
+                                </template>
+                                <template v-else>
+                                    <h3 class="text-h5 text-grey mb-2">Tidak Ada Produk</h3>
+                                    <p class="text-body-2 text-grey">Silakan pilih kategori lain.</p>
+                                </template>
                             </v-col>
                         </v-row>
                     </v-col>
@@ -206,120 +256,212 @@
 
 <script setup>
 import LandingPageLayout from "@/layouts/LandingPageLayout.vue";
-import { computed, onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { Request } from "../../../utils/request";
 import { getStorageFile } from "../../../utils/storage";
 import { useHead } from "@unhead/vue";
 
+const PAGE_SIZE = 24;
+
+const route = useRoute();
 const router = useRouter();
-const paramType = ref(null);
-const paramVendorId = ref(null);
-const vendor = ref(null);
-const manufactureType = ref({ name: 'Manufacture' });
-const productCategory = ref([]);
-const selectedCategoryId = ref(null);
-const categoryAll = { name: 'Semua Kategori', id: 'All' };
-const selectVendor = ref(null);
+const allVendors = ref([]);
 const loading = ref(false);
+const search = ref(route.query.q || '');
+const visibleCount = ref(PAGE_SIZE);
+const sentinel = ref(null);
+const SCROLL_MARGIN = 200;
+let scrollTicking = false;
 
-useHead({
-    title: 'Catalog'
+const searchTerm = computed(() => (search.value || '').trim());
+
+const filterBySearch = (seriesList) => {
+    const term = searchTerm.value.toLowerCase();
+    if (!term) return seriesList;
+    return seriesList.filter(series => (series.name || '').toLowerCase().includes(term));
+};
+
+// --- Manufacture (from route :type, 'all' = every manufacture) ---
+const manufactureTypes = computed(() => {
+    const seen = new Map();
+    allVendors.value.forEach(v => {
+        const type = v.mt_manufacture_type;
+        if (type && !seen.has(type.id)) seen.set(type.id, { id: type.id, name: type.name });
+    });
+    return [...seen.values()];
 });
 
-const paramCategoryId = computed(() => {
-    const category = router.currentRoute.value.query.category;
-    // Return null for "All" or undefined, otherwise return the category id
-    if (!category || category === 'All') return null;
-    return (!isNaN(parseInt(category)) ? parseInt(category) : category);
+const selectedType = computed(() => {
+    const name = (route.params.type || '').toLowerCase();
+    if (!name || name === 'all') return null;
+    return manufactureTypes.value.find(t => t.name.toLowerCase() === name) || null;
 });
 
-const getProductSeries = computed(() => {
-    let tempSeries = [];
+const selectedTypeValue = computed(() => (selectedType.value ? selectedType.value.name : 'all'));
 
-    if (paramCategoryId.value) {
-        // Filter by specific category
-        const category = productCategory.value.find(cat => cat.id === paramCategoryId.value);
-        if (category && category.mt_product_series) {
-            tempSeries = [...category.mt_product_series];
-        }
-    } else {
-        // Show all products from all categories
-        productCategory.value.forEach(cat => {
-            if (cat.id !== 'All' && cat.mt_product_series) {
-                tempSeries.push(...cat.mt_product_series);
-            }
+const manufactureOptions = computed(() => [
+    { name: 'Semua', value: 'all' },
+    ...manufactureTypes.value.map(t => ({ name: t.name, value: t.name })),
+]);
+
+// --- Vendor (from route :vendor_id, 'all' = every vendor of the manufacture) ---
+const typeVendors = computed(() =>
+    selectedType.value
+        ? allVendors.value.filter(v => v.mt_manufacture_type_id === selectedType.value.id)
+        : allVendors.value
+);
+
+const vendorOptions = computed(() => [
+    { id: 'all', name: 'Semua' },
+    ...typeVendors.value.map(v => ({ id: v.id, name: v.name })),
+]);
+
+const scopedVendor = computed(() =>
+    typeVendors.value.find(v => String(v.id) === String(route.params.vendor_id)) || null
+);
+
+const selectedVendorValue = computed(() => (scopedVendor.value ? scopedVendor.value.id : 'all'));
+
+const scopedVendors = computed(() => (scopedVendor.value ? [scopedVendor.value] : typeVendors.value));
+
+// --- Categories: merged by name across the scoped vendors ---
+const categoryGroups = computed(() => {
+    const groups = new Map();
+    scopedVendors.value.forEach(v => {
+        (v.mt_product_category || []).forEach(cat => {
+            const key = cat.name.toLowerCase();
+            if (!groups.has(key)) groups.set(key, { key: cat.name, name: cat.name, series: [] });
+            (cat.mt_product_series || []).forEach(series => {
+                groups.get(key).series.push({ ...series, vendor_name: v.name });
+            });
         });
+    });
+    return [...groups.values()];
+});
+
+const categoryOptions = computed(() => [
+    { key: 'All', name: 'Semua Kategori', series: categoryGroups.value.flatMap(g => g.series) },
+    ...categoryGroups.value,
+]);
+
+// ?category= holds a category name, or 'All'. Old links with a numeric category id are mapped to its name.
+const categoryParam = computed(() => {
+    const raw = route.query.category;
+    if (!raw || raw === 'All' || raw === 'undefined') return null;
+    if (/^\d+$/.test(raw)) {
+        for (const v of allVendors.value) {
+            const cat = (v.mt_product_category || []).find(c => String(c.id) === raw);
+            if (cat) return cat.name;
+        }
     }
-
-    return tempSeries;
+    return raw;
 });
 
-const getCategoryByParam = computed(() => {
-    if (!paramCategoryId.value) return null;
-    return productCategory.value.find(item => item.id === paramCategoryId.value) || null;
+const selectedCategory = computed(() => {
+    if (!categoryParam.value) return null;
+    return categoryGroups.value.find(g => g.name.toLowerCase() === categoryParam.value.toLowerCase()) || null;
 });
+
+const activeCategoryKey = computed(() => (selectedCategory.value ? selectedCategory.value.key : 'All'));
+
+const heroTitle = computed(() => {
+    if (scopedVendor.value) return scopedVendor.value.name;
+    return selectedType.value ? selectedType.value.name : 'Semua Distributor';
+});
+
+const filteredSeries = computed(() =>
+    filterBySearch(selectedCategory.value ? selectedCategory.value.series : categoryOptions.value[0].series)
+);
 
 function getSeriesCount(category) {
-    // For "All" category, return total count
-    if (category.id === 'All') {
-        let total = 0;
-        productCategory.value.forEach(cat => {
-            if (cat.id !== 'All' && cat.mt_product_series) {
-                total += cat.mt_product_series.length;
-            }
-        });
-        return total;
-    }
-    return category.mt_product_series?.length || 0;
+    return filterBySearch(category.series).length;
 }
 
-onMounted(async () => {
-    await onMountedAction();
+// --- Infinite scroll ---
+const visibleSeries = computed(() => filteredSeries.value.slice(0, visibleCount.value));
+const hasMore = computed(() => visibleCount.value < filteredSeries.value.length);
+
+// Any filter or search change starts over from the first batch
+watch(filteredSeries, () => {
+    visibleCount.value = PAGE_SIZE;
 });
 
-const onMountedAction = async () => {
-    paramType.value = router.currentRoute.value.params.type || null;
-    paramVendorId.value = router.currentRoute.value.params.vendor_id || null;
+// Load the next batch while the sentinel is near or above the viewport bottom.
+// Position check (not IntersectionObserver) so jumping past the sentinel (End key) still loads.
+const loadMoreIfNeeded = async () => {
+    while (sentinel.value && hasMore.value
+        && sentinel.value.getBoundingClientRect().top < window.innerHeight + SCROLL_MARGIN) {
+        visibleCount.value += PAGE_SIZE;
+        await nextTick();
+    }
+};
 
-    if (paramType.value && paramVendorId.value) {
-        await fetchVendor();
-        selectVendor.value = vendor.value?.id;
-        useHead({
-            title: `${vendor.value?.name || 'Catalog'} Catalog`
-        });
+const onScroll = () => {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+        scrollTicking = false;
+        loadMoreIfNeeded();
+    });
+};
+
+// Sentinel (re)appears after data loads or a filter change; the first batch may not fill the screen
+watch(sentinel, (el) => {
+    if (el) loadMoreIfNeeded();
+});
+
+useHead({
+    title: computed(() => `${heroTitle.value} Catalog`),
+});
+
+// --- Navigation / URL sync ---
+const searchQueryValue = () => (searchTerm.value ? { q: searchTerm.value } : {});
+
+const go = ({ type, vendor, category }) => {
+    router.push({
+        name: 'product-catalog',
+        params: { type, vendor_id: vendor },
+        query: { category, ...searchQueryValue() },
+    });
+};
+
+const setCategoryParam = (categoryKey) => {
+    go({ type: selectedTypeValue.value, vendor: selectedVendorValue.value, category: categoryKey });
+};
+
+const changeManufacture = (typeValue) => {
+    go({ type: typeValue || 'all', vendor: 'all', category: 'All' });
+};
+
+const changeVendor = (vendorId) => {
+    go({ type: selectedTypeValue.value, vendor: vendorId ?? 'all', category: 'All' });
+};
+
+// Push search term into the URL so it survives filter changes and reloads
+const syncSearchQuery = () => {
+    const query = { ...route.query };
+    if (searchTerm.value) {
+        query.q = searchTerm.value;
     } else {
-        router.back();
+        delete query.q;
     }
-
-    if (!router.currentRoute.value.query.category) {
-        setCategoryParam('All');
-    }
+    router.replace({ query });
 };
 
-const setCategoryParam = (categoryId) => {
-    selectedCategoryId.value = categoryId;
-    router.push(`/product/catalog/${manufactureType.value.name}/${paramVendorId.value}?category=${categoryId}`);
+const resetSearch = () => {
+    search.value = '';
+    syncSearchQuery();
 };
 
-const changeVendor = async (_vendor) => {
-    await router.push(`/product/catalog/${paramType.value}/${_vendor.id}?category=All`);
-    await onMountedAction();
-};
-
-const fetchVendor = async () => {
+const fetchVendors = async () => {
     loading.value = true;
     await Request.get({
-        url: `/api/vendor/detail/${paramVendorId.value}`,
+        url: '/api/vendor',
         useLoading: true,
     })
         .then(({ data }) => {
-            vendor.value = data.data;
-            manufactureType.value = data.data.mt_manufacture_type;
-            productCategory.value = [
-                categoryAll,
-                ...data.data.mt_product_category
-            ];
+            allVendors.value = data.data || [];
         })
         .catch((err) => {})
         .finally(() => {
@@ -327,15 +469,28 @@ const fetchVendor = async () => {
         });
 };
 
+onMounted(async () => {
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+
+    await fetchVendors();
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('scroll', onScroll);
+    window.removeEventListener('resize', onScroll);
+});
+
 watch(
-    () => router.currentRoute.value.query,
+    () => route.query,
     (newQuery) => {
-        if (newQuery.category === undefined) {
-            return router.back();
+        // Keep the input in sync with the URL (back/forward navigation)
+        if ((newQuery.q || '') !== searchTerm.value) {
+            search.value = newQuery.q || '';
         }
 
-        if (newQuery.category === 'undefined') {
-            return router.push(`/product/catalog/${paramType.value}/${paramVendorId.value}?category=All`);
+        if (route.name === 'product-catalog' && newQuery.category === undefined) {
+            router.replace({ query: { ...newQuery, category: 'All' } });
         }
     },
     { immediate: true }
@@ -384,6 +539,10 @@ watch(
     font-weight: 600;
     font-size: 1rem;
     color: #121212;
+}
+
+.filter-fields {
+    gap: 16px;
 }
 
 .category-list {
@@ -465,6 +624,13 @@ watch(
     -webkit-box-orient: vertical;
     overflow: hidden;
     line-height: 1.4;
+}
+
+.vendor-label {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 /* Responsive */

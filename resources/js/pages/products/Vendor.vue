@@ -5,10 +5,10 @@
             <v-container fluid class="pa-0">
                 <v-sheet
                     min-height="50vh"
-                    class="background-image blueprint-grid position-relative"
+                    class="background-image hero-sheet blueprint-grid position-relative"
                 >
                     <div class="overlay"></div>
-                    <v-row class="fill-height" align="center" justify="center">
+                    <v-row align="center" justify="center">
                         <v-col cols="12" md="10" lg="8" class="text-white-container text-center px-4">
                             <span class="eyebrow">Katalog Produk</span>
                             <h1 class="hero-title">
@@ -41,7 +41,7 @@
                     >
                         <v-chip
                             value="all"
-                            @click="$router.push('/product')"
+                            @click="goType('/product')"
                             class="category-chip"
                             :class="{ 'chip-active': paramType === 'all' }"
                             filter
@@ -54,7 +54,7 @@
                             v-for="(type, index) in manufactureTypes"
                             :key="index"
                             :value="type.name"
-                            @click="$router.push(`/product/${type.name}`)"
+                            @click="goType(`/product/${type.name}`)"
                             class="category-chip"
                             :class="{ 'chip-active': paramType === type.name }"
                             filter
@@ -83,6 +83,26 @@
                     </p>
                 </div>
 
+                <!-- Search -->
+                <v-row justify="center" class="mb-6">
+                    <v-col cols="12" md="8" lg="6">
+                        <v-text-field
+                            v-model="search"
+                            density="comfortable"
+                            variant="outlined"
+                            label="Cari distributor, kategori, atau series"
+                            prepend-inner-icon="mdi-magnify"
+                            clearable
+                            hide-details
+                            color="primary"
+                            @update:modelValue="syncSearchQuery"
+                        />
+                        <p v-if="searchTerm && !loading" class="text-caption text-grey mt-2 mb-0">
+                            {{ filteredVendors.length }} distributor ditemukan
+                        </p>
+                    </v-col>
+                </v-row>
+
                 <!-- Loading State -->
                 <v-row v-if="loading" justify="center">
                     <v-col cols="12" sm="6" md="4" v-for="n in 6" :key="n">
@@ -91,10 +111,10 @@
                 </v-row>
 
                 <!-- Vendors Grid -->
-                <v-row v-else-if="vendors.length > 0" justify="center">
+                <v-row v-else-if="filteredVendors.length > 0" justify="center">
                     <v-col
-                        v-for="(vendor, index) in vendors"
-                        :key="index"
+                        v-for="(vendor, index) in filteredVendors"
+                        :key="vendor.id"
                         cols="12"
                         sm="6"
                         md="4"
@@ -104,7 +124,7 @@
                             class="vendor-card card-elevated"
                             :data-aos="'fade-up'"
                             :data-aos-delay="(index + 1) * 50"
-                            @click="$router.push(`/product/catalog/${vendor.mt_manufacture_type ? vendor.mt_manufacture_type.name : 'all'}/${vendor.id}`)"
+                            @click="openVendor(vendor)"
                         >
                             <!-- Vendor Image -->
                             <div class="vendor-image-wrapper">
@@ -162,6 +182,30 @@
                                         +{{ vendor.mt_product_category.length - 3 }} more
                                     </v-chip>
                                 </div>
+
+                                <!-- Matched Series -->
+                                <div class="vendor-matches mt-2" v-if="vendor.matchedSeries.length">
+                                    <span class="text-caption text-grey">Series cocok:</span>
+                                    <v-chip
+                                        v-for="series in vendor.matchedSeries.slice(0, 3)"
+                                        :key="series.id"
+                                        size="x-small"
+                                        color="primary"
+                                        variant="tonal"
+                                        class="ml-1 mb-1"
+                                    >
+                                        {{ series.name }}
+                                    </v-chip>
+                                    <v-chip
+                                        v-if="vendor.matchedSeries.length > 3"
+                                        size="x-small"
+                                        variant="flat"
+                                        color="grey-lighten-1"
+                                        class="ml-1 mb-1"
+                                    >
+                                        +{{ vendor.matchedSeries.length - 3 }}
+                                    </v-chip>
+                                </div>
                             </v-card-text>
 
                             <!-- Card Footer -->
@@ -183,8 +227,18 @@
                 <v-row v-else>
                     <v-col cols="12" class="text-center py-16">
                         <v-icon size="80" color="grey-lighten-1" class="mb-4">mdi-package-variant-closed</v-icon>
-                        <h3 class="text-h5 text-grey mb-2">Tidak Ada Distributor</h3>
-                        <p class="text-body-2 text-grey">Silakan pilih kategori lain atau hubungi kami.</p>
+                        <template v-if="searchTerm">
+                            <h3 class="text-h5 text-grey mb-2">Tidak ada hasil untuk "{{ searchTerm }}"</h3>
+                            <p class="text-body-2 text-grey mb-4">Coba kata kunci lain atau reset pencarian.</p>
+                            <v-btn color="primary" variant="outlined" @click="resetSearch">
+                                <v-icon start size="16">mdi-close</v-icon>
+                                Reset Pencarian
+                            </v-btn>
+                        </template>
+                        <template v-else>
+                            <h3 class="text-h5 text-grey mb-2">Tidak Ada Distributor</h3>
+                            <p class="text-body-2 text-grey">Silakan pilih kategori lain atau hubungi kami.</p>
+                        </template>
                     </v-col>
                 </v-row>
             </v-container>
@@ -194,7 +248,7 @@
 
 <script setup>
 import LandingPageLayout from "@/layouts/LandingPageLayout.vue";
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { Request } from "../../utils/request";
 import { useRouter } from "vue-router";
 import { getStorageFile } from "../../utils/storage";
@@ -206,6 +260,60 @@ const loading = ref(true);
 const manufactureType = ref({});
 const vendors = ref([]);
 const manufactureTypes = ref([]);
+const search = ref(router.currentRoute.value.query.q || '');
+
+const searchTerm = computed(() => (search.value || '').trim());
+
+const includesTerm = (text, term) => (text || '').toLowerCase().includes(term);
+
+// Vendor lolos kalau nama vendor, nama kategori, atau nama series cocok.
+// matchedSeries diisi hanya saat yang cocok adalah series (untuk chip di kartu).
+const filteredVendors = computed(() => {
+    const term = searchTerm.value.toLowerCase();
+    if (!term) {
+        return vendors.value.map(vendor => ({ ...vendor, matchedSeries: [] }));
+    }
+
+    return vendors.value
+        .map(vendor => {
+            const categories = vendor.mt_product_category || [];
+            const matchedSeries = categories.flatMap(cat =>
+                (cat.mt_product_series || []).filter(series => includesTerm(series.name, term))
+            );
+            const matched = includesTerm(vendor.name, term)
+                || categories.some(cat => includesTerm(cat.name, term))
+                || matchedSeries.length > 0;
+
+            return matched ? { ...vendor, matchedSeries } : null;
+        })
+        .filter(Boolean);
+});
+
+const syncSearchQuery = () => {
+    const query = { ...router.currentRoute.value.query };
+    if (searchTerm.value) {
+        query.q = searchTerm.value;
+    } else {
+        delete query.q;
+    }
+    router.replace({ query });
+};
+
+const resetSearch = () => {
+    search.value = '';
+    syncSearchQuery();
+};
+
+// Keep the search term when switching manufacture type tabs
+const goType = (path) => {
+    router.push({ path, query: searchTerm.value ? { q: searchTerm.value } : {} });
+};
+
+const openVendor = (vendor) => {
+    const typeName = vendor.mt_manufacture_type ? vendor.mt_manufacture_type.name : 'all';
+    const q = searchTerm.value ? `&q=${encodeURIComponent(searchTerm.value)}` : '';
+    router.push(`/product/catalog/${typeName}/${vendor.id}?category=All${q}`);
+};
 
 const title = ref(router.currentRoute.value.params.type || 'Our Products');
 useHead({ title });
@@ -292,11 +400,12 @@ const fetchAllVendors = async () => {
 }
 
 watch(
-    () => router.currentRoute.value.params,
-    async (newParams) => {
+    // Watch type string only, so ?q= changes do not refetch vendors
+    () => router.currentRoute.value.params.type,
+    async (newType) => {
         // Check if type param exists
-        if (newParams.type && newParams.type !== 'all') {
-            paramType.value = newParams.type;
+        if (newType && newType !== 'all') {
+            paramType.value = newType;
             title.value = paramType.value;
             await fetchManufactureType();
         } else {
@@ -311,9 +420,15 @@ watch(
 </script>
 
 <style scoped>
-/* Hero Section */
-.hero-section {
-    margin-top: -64px;
+/* Hero Section
+   LandingPageLayout already pulls v-main up under the fixed navbar, so no extra
+   negative margin here. Top padding keeps the text clear of the 64px navbar and
+   flex centering works with min-height (unlike fill-height, which needs a fixed height). */
+.hero-sheet {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 72px 0 32px;
 }
 
 .background-image {
