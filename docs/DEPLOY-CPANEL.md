@@ -73,10 +73,19 @@ Edit `config/filesystems.php`, disk `public`, ganti `root` jadi env-driven:
 ### 2.2 Build dependency & frontend
 
 ```bash
-composer install --no-dev --optimize-autoloader
 npm ci
 npm run build          # menghasilkan public/build
 ```
+
+Untuk `vendor/` produksi (tanpa paket dev), buat bundelnya dengan skrip:
+
+```powershell
+deploy\build-update.ps1 -Target vendor    # hasil: vendor.zip
+```
+
+> **Jangan menjalankan `composer install --no-dev` langsung di folder repo.** Perintah itu meng-uninstall semua paket dev dari `vendor/` lokal (phpunit, faker, mockery, `orangehill/iseed`, dll). Skrip di atas menjalankan `composer install --no-dev --optimize-autoloader` di salinan sementara (`%TEMP%`), jadi `vendor/` lokal tetap lengkap. Kalau terlanjur, pulihkan dengan `composer install` (tanpa flag).
+>
+> Kalau harus manual tanpa skrip: salin `composer.json`, `composer.lock`, dan `artisan` ke folder lain, lalu jalankan `composer install --no-dev -o` di folder itu dan bundel `vendor/` dari sana.
 
 ### 2.3 Siapkan `.env` produksi
 
@@ -255,7 +264,7 @@ Semua lewat File Manager, `/home/techno`. **Selalu parkir yang aktif dulu, baru 
 
 **Lokal:**
 - [ ] Edit `config/filesystems.php` (PUBLIC_DISK_ROOT)
-- [ ] `composer install --no-dev -o` + `npm run build`
+- [ ] `npm run build` + `deploy\build-update.ps1 -Target vendor` (jangan `composer install --no-dev` di repo, lihat §2.2)
 - [ ] `.env.production` lengkap (APP_KEY, JWT_SECRET, DB, PUBLIC_DISK_ROOT, driver file)
 - [ ] Pakai `deploy/index.php` sebagai `index.php` di bundel public
 - [ ] Bundel `laravel_app.zip`, `laravel_public.zip`, `upload.zip`
